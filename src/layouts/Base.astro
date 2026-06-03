@@ -1,0 +1,59 @@
+---
+import '../styles/global.css';
+interface Props {
+  title: string;
+  description?: string;
+  showProgress?: boolean;
+}
+const { title, description = 'Blog của Ngô Phú Cường — công nghệ, AI, và những thứ thật.', showProgress = false } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL} />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="website" />
+</head>
+<body>
+  {showProgress && <div id="progress-bar"></div>}
+
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="site-logo">cuong.ngo</a>
+      <nav class="site-nav">
+        <a href="/about">Về tôi</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      © {new Date().getFullYear()} Ngô Phú Cường &nbsp;·&nbsp;
+      <a href="mailto:info@cuong.ngo">info@cuong.ngo</a>
+    </div>
+  </footer>
+
+  {showProgress && (
+    <script>
+      const bar = document.getElementById('progress-bar');
+      if (bar) {
+        window.addEventListener('scroll', () => {
+          const total = document.body.scrollHeight - window.innerHeight;
+          bar.style.width = total > 0 ? (window.scrollY / total * 100) + '%' : '0%';
+        }, { passive: true });
+      }
+    </script>
+  )}
+</body>
+</html>
