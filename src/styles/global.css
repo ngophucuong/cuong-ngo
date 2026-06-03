@@ -114,6 +114,38 @@ img {
   border-radius: 4px;
 }
 
+/* Magazine float layout */
+.float-right {
+  float: right;
+  margin: 0.25rem 0 var(--space-m) var(--space-l);
+  max-width: 260px;
+  border-radius: 4px;
+  display: block;
+}
+
+.float-left {
+  float: left;
+  margin: 0.25rem var(--space-l) var(--space-m) 0;
+  max-width: 260px;
+  border-radius: 4px;
+  display: block;
+}
+
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+figcaption {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--color-ink-2);
+  text-align: center;
+  margin-top: 0.4rem;
+  letter-spacing: 0.03em;
+}
+
 /* ─── Header ─── */
 .site-header {
   padding: var(--space-m) 0;

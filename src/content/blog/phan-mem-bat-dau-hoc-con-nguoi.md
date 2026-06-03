@@ -14,6 +14,11 @@ Nhưng tôi sẽ không liệt kê chúng theo thứ tự cho bạn nghe. Trình
 
 ## Cái không bao giờ đổi, suốt từng ấy năm
 
+<figure style="float:right; margin: 0.25rem 0 1.75rem 2.5rem; max-width:220px;">
+  <img src="/images/phan-mem-hoc-con-nguoi.svg" alt="Bàn tay người và bàn tay máy chạm nhau" style="margin:0; border-radius:4px;"/>
+  <figcaption>Con người · Máy móc</figcaption>
+</figure>
+
 Qua mọi thời đại đó, có một thứ chưa một lần thay đổi: **con người luôn là bên phải học.**
 
 Người dùng phải nhớ gõ đúng lệnh. Phải học cái menu nằm ở đâu. Phải nhớ nhập ngày tháng đúng định dạng, không thì máy báo lỗi. Phải đoán xem cái nút mình cần đang giấu sau lớp thao tác nào. Mỗi thế hệ phần mềm mới, ta lại bắt hàng triệu người ngồi xuống học một thứ "ngôn ngữ của phần mềm" mới — rồi ta gọi đó là tiến bộ.
