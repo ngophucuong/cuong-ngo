@@ -1,18 +1,13 @@
------
-
-title: “Ba tỷ và một bài học”
+---
+title: "Ba tỷ và một bài học"
 date: 2026-06-03
-tags: [“Thất bại”, “Chuyển đổi số”, “Logistics”]
-readTime: “~8 phút đọc”
-description: “Một công ty forwarder hai mươi năm tuổi, sáu mươi nhân viên, vừa ký hợp đồng phần mềm ba tỷ đồng. Tám tháng sau, hợp đồng chấm dứt. Đây là cách chuyện diễn ra.”
-series: “”
-seriesOrder: 0
+tags: ["Thất bại", "Chuyển đổi số", "Logistics"]
+readTime: "~8 phút đọc"
+description: "Một công ty forwarder hai mươi năm tuổi, sáu mươi nhân viên, vừa ký hợp đồng phần mềm ba tỷ đồng. Tám tháng sau, hợp đồng chấm dứt. Đây là cách chuyện diễn ra."
 relatedSlugs:
-
-- “phan-mem-bat-dau-hoc-con-nguoi”
-  callToAction: “đang cân nhắc hoặc đang triển khai một dự án số hóa trong doanh nghiệp của mình”
-
------
+  - "phan-mem-bat-dau-hoc-con-nguoi"
+callToAction: "đang cân nhắc hoặc đang triển khai một dự án số hóa trong doanh nghiệp của mình"
+---
 
 Tháng ba một năm gần đây, một công ty forwarder ở Hà Nội ký hợp đồng phần mềm trị giá hơn ba tỷ đồng. Họ không phải startup. Hai mươi năm trong nghề, sáu mươi nhân viên, doanh thu hàng năm gần năm trăm tỷ. Mỗi tháng chạy khoảng một ngàn hai trăm lô hàng đi các cửa khẩu phía Bắc. Một cái tên được nhắc trong hội nghị ngành.
 
