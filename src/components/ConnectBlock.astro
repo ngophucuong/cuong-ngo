@@ -1,0 +1,29 @@
+---
+/**
+ * ConnectBlock — khối kết nối cuối bài
+ * Hiển thị nếu callToAction trong frontmatter có giá trị.
+ * Thiết kế tối giản: Newsreader italic, màu ink-soft, không banner.
+ *
+ * Props:
+ *  - callToAction: string  — mô tả vấn đề cụ thể của bài (từ frontmatter)
+ *  - calendarLink: string  — link Calendly hoặc form liên hệ (mặc định: /lien-he)
+ */
+
+interface Props {
+  callToAction: string;
+  calendarLink?: string;
+}
+
+const { callToAction, calendarLink = '/lien-he' } = Astro.props;
+---
+
+<div class="connect-block" aria-label="Kết nối">
+  <p>
+    Nếu bạn đang {callToAction} trong doanh nghiệp của mình,
+    tôi muốn nghe câu chuyện của bạn. Không pitch, không demo —
+    chỉ là một cuộc trò chuyện 20 phút.
+  </p>
+  <p>
+    → <a href={calendarLink}>Đặt lịch nói chuyện</a>
+  </p>
+</div>

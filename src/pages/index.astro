@@ -21,12 +21,22 @@ function formatDate(date: Date) {
     <ul class="post-list">
       {posts.map((post) => (
         <li>
+          {post.data.series && post.data.seriesTitle && (
+            <span class="series-label">
+              Bài {post.data.seriesOrder ?? ''} trong tuyến · {post.data.seriesTitle}
+            </span>
+          )}
           <a class="post-title" href={`/bai/${post.id}`}>{post.data.title}</a>
           <p class="post-meta">
             {formatDate(post.data.date)}
             {post.data.readTime && <> · {post.data.readTime}</>}
           </p>
           <p class="post-desc">{post.data.description}</p>
+          {post.data.tags && post.data.tags.length > 0 && (
+            <ul class="tag-list">
+              {post.data.tags.map(tag => <li>{tag}</li>)}
+            </ul>
+          )}
         </li>
       ))}
     </ul>

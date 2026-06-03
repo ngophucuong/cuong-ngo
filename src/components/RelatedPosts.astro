@@ -1,0 +1,32 @@
+---
+/**
+ * RelatedPosts — bài liên quan do tác giả chọn tay
+ * Tối đa 2 bài, hiển thị tiêu đề + mô tả ngắn
+ *
+ * Props:
+ *  - posts: CollectionEntry[]  — tối đa 2 bài, đã resolve từ relatedSlugs
+ */
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  posts: CollectionEntry<'blog'>[];
+}
+
+const { posts } = Astro.props;
+
+if (!posts || posts.length === 0) return;
+---
+
+<aside class="related-posts" aria-label="Bài liên quan">
+  <p class="related-posts-label">Bài liên quan</p>
+  <ul class="related-posts-list">
+    {posts.slice(0, 2).map((post) => (
+      <li>
+        <a href={`/bai/${post.id}`}>{post.data.title}</a>
+        {post.data.description && (
+          <p class="related-desc">{post.data.description}</p>
+        )}
+      </li>
+    ))}
+  </ul>
+</aside>

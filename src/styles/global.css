@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
-/* ─── Design tokens ─── */
+/* ─── Design tokens — Light mode ─── */
 :root {
   --color-bg:      #f4efe6;
   --color-ink:     #1a1714;
@@ -19,6 +19,28 @@
   --space-m:  1.75rem;
   --space-l:  3rem;
   --space-xl: 5rem;
+}
+
+/* ─── Dark mode — theo prefers-color-scheme, không toggle thủ công ─── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg:     #1a1714;
+    --color-ink:    #e8e0d0;
+    --color-ink-2:  #b8b0a0;
+    --color-red:    #c4583a;  /* sáng hơn chút để đọc được trên nền tối */
+    --color-green:  #6a9a7a;
+    --color-border: #2e2924;
+  }
+
+  /* pre giữ màu riêng trên dark */
+  pre {
+    background: #0f0d0b !important;
+    color: #e8e0d0 !important;
+  }
+
+  code {
+    background: rgba(255,255,255,0.08) !important;
+  }
 }
 
 /* ─── Reset & base ─── */
@@ -71,10 +93,12 @@ a:hover { color: var(--color-ink); }
 
 blockquote {
   border-left: 2px solid var(--color-red);
-  padding-left: var(--space-m);
-  margin: var(--space-m) 0;
+  padding-left: 1.5em;
+  margin: 2.5em 0;
   color: var(--color-ink-2);
   font-style: italic;
+  font-size: 1.2em;
+  line-height: 1.6;
 }
 
 code {
@@ -285,4 +309,190 @@ figcaption {
 /* ─── About page ─── */
 .about-body h1 {
   margin-bottom: var(--space-m);
+}
+
+/* ─── Article: standfirst ─── */
+.article-standfirst {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--color-ink-2);
+  line-height: 1.6;
+  margin-top: var(--space-s);
+  margin-bottom: var(--space-m);
+}
+
+/* ─── Article: nhịp đọc tối ưu ─── */
+.article-body {
+  line-height: 1.78;
+}
+.article-body p { margin-bottom: 1.6em; }
+.article-body h2 { margin-top: 3em; margin-bottom: 0.5em; }
+.article-body h3 { margin-top: 2em; margin-bottom: 0.4em; }
+
+/* ─── Tags ─── */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  list-style: none;
+}
+.tag-list li {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-ink-2);
+  border: 1px solid var(--color-border);
+  padding: 0.15em 0.55em;
+  border-radius: 2px;
+}
+
+/* ─── Series label trên trang chủ ─── */
+.series-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: var(--color-red);
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+  display: block;
+}
+
+/* ─── SeriesNav — điều hướng trong tuyến ─── */
+.series-nav {
+  margin-top: var(--space-l);
+  padding-top: var(--space-m);
+  border-top: 1px solid var(--color-border);
+}
+.series-nav-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-2);
+  margin-bottom: var(--space-s);
+}
+.series-nav-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--color-ink);
+  margin-bottom: var(--space-s);
+}
+.series-nav-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.series-nav-list li {
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+.series-nav-list a {
+  color: var(--color-ink-2);
+  text-decoration: none;
+}
+.series-nav-list a:hover { color: var(--color-red); }
+.series-nav-list .current {
+  color: var(--color-ink);
+  font-style: italic;
+  cursor: default;
+  text-decoration: none;
+}
+.series-nav-list .upcoming {
+  color: var(--color-ink-2);
+  opacity: 0.55;
+  font-style: italic;
+  cursor: default;
+}
+.series-prev-next {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-m);
+  margin-top: var(--space-m);
+  font-size: 0.9rem;
+}
+.series-prev-next a {
+  color: var(--color-ink-2);
+  text-decoration: none;
+}
+.series-prev-next a:hover { color: var(--color-red); }
+
+/* ─── RelatedPosts ─── */
+.related-posts {
+  margin-top: var(--space-l);
+  padding-top: var(--space-m);
+  border-top: 1px solid var(--color-border);
+}
+.related-posts-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-2);
+  margin-bottom: var(--space-s);
+}
+.related-posts-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+}
+.related-posts-list a {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--color-ink);
+  text-decoration: none;
+  display: block;
+}
+.related-posts-list a:hover { color: var(--color-red); }
+.related-posts-list .related-desc {
+  font-size: 0.85rem;
+  color: var(--color-ink-2);
+  margin-top: 0.2rem;
+  line-height: 1.45;
+}
+
+/* ─── ConnectBlock ─── */
+.connect-block {
+  margin-top: var(--space-l);
+  padding-top: var(--space-m);
+  border-top: 1px solid var(--color-border);
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--color-ink-2);
+  line-height: 1.7;
+}
+.connect-block p { margin-bottom: 0.6em; }
+.connect-block a {
+  color: var(--color-ink-2);
+  text-underline-offset: 3px;
+}
+.connect-block a:hover { color: var(--color-red); }
+
+/* ─── Responsive đọc ─── */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 var(--space-m);
+  }
+  .float-right, .float-left {
+    float: none;
+    margin: var(--space-m) auto;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  html { font-size: 18px; }
+  body { font-size: 1.05rem; }
+  .container { padding: 0 1.25rem; }
+  .article-standfirst { font-size: 1.1rem; }
+  h1 { font-size: clamp(1.5rem, 6vw, 2rem); }
+  blockquote { font-size: 1.1em; padding-left: 1em; }
+  .series-prev-next { flex-direction: column; gap: var(--space-s); }
 }

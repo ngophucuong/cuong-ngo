@@ -1,0 +1,59 @@
+---
+/**
+ * SeriesNav — điều hướng trong tuyến bài
+ * Hiển thị danh sách bài trong tuyến + prev/next
+ *
+ * Props:
+ *  - currentSlug: string       — slug bài hiện tại
+ *  - seriesTitle: string       — tên hiển thị của tuyến
+ *  - seriesPosts: CollectionEntry[]  — tất cả bài cùng series, đã sắp theo seriesOrder
+ */
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  currentSlug: string;
+  seriesTitle: string;
+  seriesPosts: CollectionEntry<'blog'>[];
+}
+
+const { currentSlug, seriesTitle, seriesPosts } = Astro.props;
+
+const currentIndex = seriesPosts.findIndex(p => p.id === currentSlug);
+const prev = currentIndex > 0 ? seriesPosts[currentIndex - 1] : null;
+const next = currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : null;
+---
+
+<nav class="series-nav" aria-label={`Tuyến bài: ${seriesTitle}`}>
+  <p class="series-nav-label">Trong tuyến này</p>
+  <p class="series-nav-title">{seriesTitle}</p>
+
+  <ol class="series-nav-list">
+    {seriesPosts.map((post) => {
+      const isCurrent = post.id === currentSlug;
+      return (
+        <li>
+          {isCurrent ? (
+            <span class="current">→ {post.data.title}</span>
+          ) : (
+            <a href={`/bai/${post.id}`}>{post.data.title}</a>
+          )}
+        </li>
+      );
+    })}
+  </ol>
+
+  {(prev || next) && (
+    <div class="series-prev-next">
+      <span>
+        {prev && (
+          <a href={`/bai/${prev.id}`}>← {prev.data.title}</a>
+        )}
+      </span>
+      <span>
+        {next && (
+          <a href={`/bai/${next.id}`}>{next.data.title} →</a>
+        )}
+      </span>
+    </div>
+  )}
+</nav>
