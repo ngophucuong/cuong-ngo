@@ -1,5 +1,5 @@
 ---
-title: "Suốt đời tôi giúp con người học cách dùng phần mềm. Giờ phần mềm bắt đầu học con người."
+title: "Một thời gian dài tôi giúp người dùng học cách sử dụng phần mềm. Giờ phần mềm bắt đầu học lại hành vi người dùng."
 date: 2026-06-01
 tags: ["Tự sự", "Nghề"]
 readTime: "~6 phút đọc"
