@@ -4,6 +4,12 @@ date: 2026-06-01
 tags: ["Tự sự", "Nghề"]
 readTime: "~6 phút đọc"
 description: "Không phải một bài về AI. Là một bài về một thói quen kéo dài mấy chục năm mà tôi chưa từng đặt câu hỏi — cho tới khi nó đột nhiên có thể chấm dứt."
+series: "phan-mem-thich-ung"
+seriesOrder: 1
+seriesTitle: "Phần mềm thích ứng"
+relatedSlugs:
+  - "quy-trinh-viet-va-quy-trinh-that"
+callToAction: "vật lộn với việc phần mềm không theo kịp cách doanh nghiệp bạn thực sự vận hành"
 ---
 
 Tôi không viết bài này để kể ngày xưa code khổ thế nào. Nếu bạn chờ một câu "hồi đó vất vả mà vui, giờ các bạn trẻ sướng quá", thì xin dừng ở đây — tôi không tin vào kiểu hoài niệm đó. Quá khứ không hay hơn hiện tại. Nó chỉ *khác*, và sự khác ấy đang chỉ cho tôi thấy một điều mà lúc ở trong nó tôi không bao giờ thấy được.
