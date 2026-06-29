@@ -7,81 +7,127 @@ export function renderStudioApp() {
   <title>Cuong Ngo Studio</title>
   <style>
     :root {
-      --bg: #f2ecdf;
-      --panel: rgba(255, 252, 246, 0.84);
-      --ink: #1d1a16;
-      --muted: #685f55;
-      --line: #d6ccbf;
-      --accent: #9a3b1f;
-      --accent-2: #3d5c4a;
-      --shadow: 0 22px 50px rgba(48, 39, 30, 0.08);
-      --radius: 22px;
+      --bg: #f5f7f8;
+      --panel: #ffffff;
+      --panel-soft: #f9fbfb;
+      --ink: #16181d;
+      --muted: #66717d;
+      --line: #dde3e8;
+      --line-strong: #c9d2da;
+      --accent: #0f766e;
+      --accent-soft: #e8f3f1;
+      --danger: #b42318;
+      --warning: #a15c07;
+      --shadow: 0 16px 38px rgba(29, 39, 52, 0.08);
+      --radius: 8px;
     }
 
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
+
     body {
-      font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-      color: var(--ink);
-      background:
-        radial-gradient(circle at top left, rgba(154, 59, 31, 0.1), transparent 28%),
-        radial-gradient(circle at top right, rgba(61, 92, 74, 0.08), transparent 26%),
-        linear-gradient(180deg, #f7f2e8 0%, #efe7d9 100%);
       min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Aptos, "SF Pro Text", "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    button, input, textarea { font: inherit; }
+
+    button {
+      min-height: 38px;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      padding: 0.55rem 0.8rem;
+      cursor: pointer;
+      background: #eef2f5;
+      color: var(--ink);
+    }
+
+    button:hover { border-color: var(--line-strong); }
+    button.primary { background: var(--accent); color: #fff; }
+    button.secondary { background: var(--accent-soft); color: #075f58; }
+    button.ghost { background: #fff; border-color: var(--line); }
+    button.warn { background: #fff7ed; color: var(--warning); border-color: #fed7aa; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      padding: 0.68rem 0.75rem;
+    }
+
+    input:focus, textarea:focus {
+      outline: 3px solid rgba(15, 118, 110, 0.12);
+      border-color: var(--accent);
+    }
+
+    textarea { resize: vertical; min-height: 7rem; }
+
+    label {
+      display: grid;
+      gap: 0.35rem;
+      color: var(--muted);
+      font-size: 0.84rem;
     }
 
     .studio-shell {
+      min-height: 100vh;
       display: grid;
       grid-template-rows: auto 1fr;
-      min-height: 100vh;
     }
 
     .studio-header {
-      padding: 1.1rem 1.4rem;
-      border-bottom: 1px solid rgba(214, 204, 191, 0.9);
-      backdrop-filter: blur(18px);
-      background: rgba(247, 242, 232, 0.88);
       position: sticky;
       top: 0;
       z-index: 10;
+      border-bottom: 1px solid var(--line);
+      background: rgba(245, 247, 248, 0.94);
+      backdrop-filter: blur(14px);
     }
 
     .studio-header-inner {
       display: flex;
+      align-items: center;
       justify-content: space-between;
       gap: 1rem;
-      align-items: center;
+      padding: 0.85rem 1rem;
     }
 
     .studio-brand h1 {
       margin: 0;
-      font-size: 1.35rem;
-      font-weight: 500;
+      font-size: 1rem;
+      font-weight: 650;
+      letter-spacing: 0;
     }
 
-    .studio-brand p,
-    .session-pill,
     .status-line {
-      margin: 0.25rem 0 0;
+      margin: 0.15rem 0 0;
       color: var(--muted);
-      font-size: 0.92rem;
-      line-height: 1.45;
+      font-size: 0.84rem;
     }
+
+    .status-line[data-tone="error"] { color: var(--danger); }
+    .status-line[data-tone="success"] { color: var(--accent); }
 
     .session-pill {
-      padding: 0.55rem 0.85rem;
       border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.6);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--muted);
+      padding: 0.5rem 0.65rem;
       white-space: nowrap;
+      font-size: 0.84rem;
     }
 
-    .status-line[data-tone="error"] { color: var(--accent); }
-    .status-line[data-tone="success"] { color: var(--accent-2); }
-
-    .studio-grid {
+    .workbench {
       display: grid;
-      grid-template-columns: 300px minmax(0, 1.35fr) minmax(320px, 0.95fr);
+      grid-template-columns: 292px minmax(520px, 1fr) 360px;
       gap: 1rem;
       padding: 1rem;
       align-items: start;
@@ -89,172 +135,172 @@ export function renderStudioApp() {
 
     .panel {
       background: var(--panel);
-      border: 1px solid rgba(214, 204, 191, 0.88);
+      border: 1px solid var(--line);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
     }
 
-    .panel-inner {
-      padding: 1rem 1rem 1.15rem;
-    }
-
-    .panel h2,
-    .panel h3 {
-      margin: 0 0 0.85rem;
-      font-size: 1rem;
-      font-weight: 500;
-      letter-spacing: 0.01em;
-    }
-
+    .panel-inner { padding: 1rem; }
     .stack { display: grid; gap: 1rem; }
-    .mini-stack { display: grid; gap: 0.6rem; }
+    .mini-stack { display: grid; gap: 0.65rem; }
+
+    .panel h2, .panel h3 {
+      margin: 0 0 0.75rem;
+      font-size: 0.92rem;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.55rem;
+    }
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.75rem;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #fff;
     }
 
     .stat-card {
-      padding: 0.85rem;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.48);
+      padding: 0.7rem;
+      border-right: 1px solid var(--line);
     }
+
+    .stat-card:last-child { border-right: 0; }
 
     .stat-card strong {
       display: block;
-      font-size: 1.6rem;
-      font-weight: 500;
+      font-size: 1.15rem;
       line-height: 1;
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.25rem;
     }
 
-    .stat-card span {
+    .stat-card span,
+    .field-hint,
+    .draft-item-meta,
+    .top-posts small,
+    .schedule-list small {
       color: var(--muted);
-      font-size: 0.82rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+      font-size: 0.78rem;
+      line-height: 1.4;
     }
 
-    .search-row,
-    .schedule-row,
-    .toolbar {
-      display: grid;
-      gap: 0.65rem;
-    }
-
-    .toolbar {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    label {
-      display: grid;
-      gap: 0.38rem;
-      font-size: 0.86rem;
-      color: var(--muted);
-    }
-
-    input,
-    textarea,
-    button {
-      font: inherit;
-    }
-
-    input,
-    textarea {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 0.78rem 0.85rem;
-      background: rgba(255, 255, 255, 0.82);
-      color: var(--ink);
-    }
-
-    textarea { resize: vertical; min-height: 7rem; }
-    #body { min-height: 26rem; }
-    #illustration-svg { min-height: 14rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; }
-
-    input:focus,
-    textarea:focus {
-      outline: 2px solid rgba(154, 59, 31, 0.18);
-      border-color: rgba(154, 59, 31, 0.6);
-    }
-
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 0.78rem 1rem;
-      cursor: pointer;
-      background: #f0e5d3;
-      color: var(--ink);
-      transition: transform 120ms ease, opacity 120ms ease, background 120ms ease;
-    }
-
-    button:hover { transform: translateY(-1px); }
-    button.primary { background: var(--accent); color: #fff6ef; }
-    button.secondary { background: rgba(61, 92, 74, 0.12); color: var(--accent-2); }
-    button.ghost { background: rgba(255, 255, 255, 0.6); border: 1px solid var(--line); }
-    button.warn { background: rgba(154, 59, 31, 0.12); color: var(--accent); }
-
-    .draft-list,
-    .top-posts,
-    .schedule-list {
+    .draft-list, .top-posts, .schedule-list {
       list-style: none;
       margin: 0;
       padding: 0;
       display: grid;
-      gap: 0.6rem;
+      gap: 0.45rem;
     }
 
     .draft-list button {
       width: 100%;
       text-align: left;
-      border-radius: 16px;
-      padding: 0.9rem;
-      background: rgba(255, 255, 255, 0.68);
       border: 1px solid transparent;
+      background: var(--panel-soft);
+      padding: 0.75rem;
     }
 
     .draft-list button[data-active="true"] {
-      border-color: rgba(154, 59, 31, 0.4);
-      background: rgba(255, 255, 255, 0.92);
+      border-color: var(--accent);
+      background: var(--accent-soft);
     }
 
-    .draft-item-title {
+    .draft-item-title, .top-posts strong, .schedule-list strong {
       display: block;
-      font-size: 1rem;
       color: var(--ink);
-      margin-bottom: 0.28rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      overflow-wrap: anywhere;
     }
 
-    .draft-item-meta,
-    .top-posts small,
-    .schedule-list small,
-    .field-hint {
-      color: var(--muted);
-      font-size: 0.8rem;
-      line-height: 1.4;
-    }
-
-    .top-posts li,
-    .schedule-list li {
-      padding: 0.75rem 0.8rem;
+    .top-posts li, .schedule-list li {
       border: 1px solid var(--line);
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.45);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+      padding: 0.7rem;
     }
 
-    .top-posts strong,
-    .schedule-list strong {
-      display: block;
-      margin-bottom: 0.18rem;
-      font-size: 0.95rem;
-      font-weight: 500;
+    .editor-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.9rem;
     }
 
-    .form-grid {
+    .editor-head h2 {
+      margin-bottom: 0.2rem;
+      font-size: 1.08rem;
+    }
+
+    .stepper {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .step-tab {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 0.5rem;
+      align-items: center;
+      text-align: left;
+      border: 1px solid var(--line);
+      background: #fff;
+      min-height: 52px;
+      padding: 0.55rem;
+    }
+
+    .step-tab[aria-selected="true"] {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .step-index {
+      display: grid;
+      place-items: center;
+      width: 1.55rem;
+      height: 1.55rem;
+      border-radius: 999px;
+      background: #e7edf1;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .step-tab[aria-selected="true"] .step-index {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .step-label {
+      min-width: 0;
+      font-size: 0.82rem;
+      font-weight: 650;
+      line-height: 1.2;
+    }
+
+    .step-panel {
+      display: grid;
+      gap: 1rem;
+      min-height: 520px;
+      animation: panel-in 150ms ease-out;
+    }
+
+    .step-panel[hidden] { display: none; }
+
+    @keyframes panel-in {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .field-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0.8rem;
@@ -262,36 +308,87 @@ export function renderStudioApp() {
 
     .full-span { grid-column: 1 / -1; }
 
-    .section-divider {
-      padding-top: 0.2rem;
-      border-top: 1px solid rgba(214, 204, 191, 0.72);
+    #body {
+      min-height: 430px;
+      font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+      font-size: 0.9rem;
+      line-height: 1.58;
+    }
+
+    #illustration-svg {
+      min-height: 260px;
+      font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+      font-size: 0.84rem;
+      line-height: 1.5;
+    }
+
+    .step-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      border-top: 1px solid var(--line);
+      padding-top: 0.9rem;
+      align-self: end;
+    }
+
+    .step-actions .right {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+    }
+
+    .publish-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.8rem;
+    }
+
+    .publish-block {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+      padding: 0.85rem;
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    .publish-block h3 { margin: 0; }
+
+    .review-box, .preview-shell {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
     }
 
     .review-box {
-      white-space: pre-wrap;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 0.82rem;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 0.9rem;
-      background: rgba(255, 255, 255, 0.62);
-      min-height: 12rem;
+      min-height: 180px;
+      max-height: 320px;
       overflow: auto;
+      padding: 0.8rem;
+      white-space: pre-wrap;
+      font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    .preview-panel {
+      position: sticky;
+      top: 86px;
     }
 
     .preview-shell {
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.78);
       padding: 1rem;
-      min-height: 16rem;
+      min-height: 420px;
+      max-height: calc(100vh - 210px);
       overflow: auto;
     }
 
     .preview-shell .preview-header h1 {
-      margin: 0 0 0.6rem;
-      font-size: 1.7rem;
-      line-height: 1.18;
+      margin: 0 0 0.55rem;
+      font-size: 1.45rem;
+      line-height: 1.22;
+      letter-spacing: 0;
     }
 
     .preview-shell .preview-header p {
@@ -304,17 +401,12 @@ export function renderStudioApp() {
     .preview-shell .preview-body ul,
     .preview-shell .preview-body blockquote {
       margin: 0 0 1rem;
-      line-height: 1.7;
+      line-height: 1.68;
     }
 
     .preview-shell .preview-body h2 {
-      margin: 2rem 0 0.6rem;
-      font-size: 1.25rem;
-    }
-
-    .preview-shell .preview-body h3 {
-      margin: 1.5rem 0 0.5rem;
-      font-size: 1.08rem;
+      margin: 1.6rem 0 0.55rem;
+      font-size: 1.12rem;
     }
 
     .preview-shell svg,
@@ -327,35 +419,43 @@ export function renderStudioApp() {
       margin: 0 0 1rem;
     }
 
-    .empty-state {
-      color: var(--muted);
-      font-size: 0.92rem;
-      line-height: 1.5;
+    .empty-state { color: var(--muted); margin: 0; }
+
+    .utility-row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+      align-items: center;
+      flex-wrap: wrap;
     }
 
     .hidden { display: none; }
 
-    @media (max-width: 1160px) {
-      .studio-grid {
-        grid-template-columns: 1fr;
-      }
+    @media (max-width: 1240px) {
+      .workbench { grid-template-columns: 280px minmax(0, 1fr); }
+      .preview-panel { position: static; grid-column: 1 / -1; }
+      .preview-shell { max-height: none; }
     }
 
-    @media (max-width: 720px) {
-      .studio-header-inner,
-      .toolbar,
-      .form-grid {
-        grid-template-columns: 1fr;
+    @media (max-width: 860px) {
+      .studio-header-inner, .workbench, .editor-head, .field-grid, .publish-grid {
         display: grid;
+        grid-template-columns: 1fr;
       }
 
-      .studio-header {
-        padding: 1rem;
+      .workbench { padding: 0.75rem; }
+      .stepper { grid-template-columns: 1fr 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .stat-card:nth-child(2) { border-right: 0; }
+    }
+
+    @media (max-width: 560px) {
+      .stepper, .toolbar, .step-actions, .step-actions .right, .utility-row {
+        display: grid;
+        grid-template-columns: 1fr;
       }
 
-      .studio-grid {
-        padding: 0.8rem;
-      }
+      .session-pill { white-space: normal; }
     }
   </style>
 </head>
@@ -365,14 +465,13 @@ export function renderStudioApp() {
       <div class="studio-header-inner">
         <div class="studio-brand">
           <h1>Cuong Ngo Studio</h1>
-          <p>Markdown editor, AI review, schedule publish va top bai duoc doc nhieu nhat.</p>
           <p class="status-line" id="status-line">Dang tai du lieu studio...</p>
         </div>
         <div class="session-pill">Access session: <strong id="session-email">...</strong></div>
       </div>
     </header>
 
-    <div class="studio-grid">
+    <div class="workbench">
       <aside class="stack">
         <section class="panel">
           <div class="panel-inner stack">
@@ -380,155 +479,208 @@ export function renderStudioApp() {
               <h2>Tong quan</h2>
               <div class="stats-grid" id="summary-grid"></div>
             </div>
-            <div>
-              <h3>Top bai 30 ngay</h3>
-              <ul class="top-posts" id="top-posts"></ul>
-            </div>
-            <div>
-              <h3>Lich dang</h3>
-              <ul class="schedule-list" id="scheduled-list"></ul>
+            <div class="toolbar">
+              <button class="ghost" id="new-draft-btn" type="button">Draft moi</button>
+              <button class="primary" id="save-btn" type="button">Luu</button>
             </div>
           </div>
         </section>
 
         <section class="panel">
           <div class="panel-inner stack">
-            <div class="search-row">
-              <label for="draft-search">Loc draft</label>
-              <input id="draft-search" type="search" placeholder="Tim theo tieu de, slug..." />
-            </div>
-            <div class="toolbar">
-              <button class="ghost" id="new-draft-btn" type="button">Draft moi</button>
-              <button class="primary" id="save-btn" type="button">Luu draft</button>
-            </div>
-            <div>
-              <h3>Danh sach draft</h3>
-              <ul class="draft-list" id="draft-list"></ul>
-            </div>
+            <label for="draft-search">Draft
+              <input id="draft-search" type="search" placeholder="Tim title hoac slug" />
+            </label>
+            <ul class="draft-list" id="draft-list"></ul>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-inner mini-stack">
+            <h2>Top bai 30 ngay</h2>
+            <ul class="top-posts" id="top-posts"></ul>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-inner mini-stack">
+            <h2>Lich dang</h2>
+            <ul class="schedule-list" id="scheduled-list"></ul>
           </div>
         </section>
       </aside>
 
-      <main class="stack">
-        <section class="panel">
-          <div class="panel-inner stack">
+      <main class="panel">
+        <div class="panel-inner">
+          <div class="editor-head">
             <div>
-              <h2>Editor</h2>
-              <p class="field-hint">V1 luu draft vao R2, metadata vao D1. Mọi thay doi sau publish van se quay lai luong approve.</p>
+              <h2 id="step-title">Noi dung</h2>
+              <p class="field-hint" id="step-subtitle">Viet title va markdown truoc, cac truong khac di sau.</p>
             </div>
+            <div class="utility-row">
+              <button class="ghost" id="review-btn" type="button">AI review</button>
+              <button class="ghost" id="illustration-btn" type="button">AI SVG</button>
+            </div>
+          </div>
 
-            <input id="draft-id" type="hidden" />
+          <input id="draft-id" type="hidden" />
 
-            <div class="form-grid">
+          <nav class="stepper" aria-label="Publish workflow">
+            <button class="step-tab" type="button" data-step-target="write" aria-selected="true">
+              <span class="step-index">1</span>
+              <span class="step-label">Noi dung</span>
+            </button>
+            <button class="step-tab" type="button" data-step-target="meta" aria-selected="false">
+              <span class="step-index">2</span>
+              <span class="step-label">Bien tap</span>
+            </button>
+            <button class="step-tab" type="button" data-step-target="illustration" aria-selected="false">
+              <span class="step-index">3</span>
+              <span class="step-label">Minh hoa</span>
+            </button>
+            <button class="step-tab" type="button" data-step-target="publish" aria-selected="false">
+              <span class="step-index">4</span>
+              <span class="step-label">Duyet dang</span>
+            </button>
+          </nav>
+
+          <section class="step-panel" data-step-panel="write">
+            <div class="field-grid">
               <label class="full-span">Tieu de
                 <input id="title" type="text" placeholder="Tieu de bai viet" />
               </label>
-
-              <label>Slug
-                <input id="slug" type="text" placeholder="slug-tu-dong-neu-bo-trong" />
-              </label>
-
-              <label>Ngay dang
-                <input id="date" type="date" />
-              </label>
-
-              <label class="full-span">Mo ta ngan
-                <textarea id="description" rows="3" placeholder="Standfirst / description"></textarea>
-              </label>
-
-              <label>The
-                <input id="tags" type="text" placeholder="AI, Van hanh, Nghe" />
-              </label>
-
-              <label>Read time
-                <input id="read-time" type="text" placeholder="~7 phut doc" />
-              </label>
-
-              <label>Series key
-                <input id="series" type="text" placeholder="phan-mem-thich-ung" />
-              </label>
-
-              <label>Series order
-                <input id="series-order" type="number" min="1" step="1" placeholder="1" />
-              </label>
-
-              <label class="full-span">Series title
-                <input id="series-title" type="text" placeholder="Tieu de tuyen bai" />
-              </label>
-
-              <label class="full-span">Related slugs
-                <input id="related-slugs" type="text" placeholder="slug-1, slug-2" />
-              </label>
-
-              <label class="full-span">Call to action
-                <textarea id="call-to-action" rows="3" placeholder="Canh huong ket noi cuoi bai"></textarea>
-              </label>
-
-              <label class="full-span">Prompt minh hoa
-                <textarea id="illustration-prompt" rows="3" placeholder="Mo ta y tuong hinh minh hoa de AI doi sang SVG"></textarea>
-              </label>
-
-              <label class="full-span">SVG minh hoa
-                <textarea id="illustration-svg" placeholder="<svg ...>"></textarea>
-              </label>
-
               <label class="full-span">Noi dung Markdown
                 <textarea id="body" placeholder="Dan bai viet Markdown vao day"></textarea>
               </label>
             </div>
-          </div>
-        </section>
+            <div class="step-actions">
+              <span class="field-hint">Draft se duoc luu truoc khi chuyen sang buoc ke tiep.</span>
+              <div class="right">
+                <button class="ghost" id="save-write-btn" type="button">Luu</button>
+                <button class="primary" data-next-step="meta" type="button">Tiep: Bien tap</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="step-panel" data-step-panel="meta" hidden>
+            <div class="field-grid">
+              <label class="full-span">Mo ta ngan
+                <textarea id="description" rows="3" placeholder="Standfirst / description"></textarea>
+              </label>
+              <label>Slug
+                <input id="slug" type="text" placeholder="tu-dong-neu-bo-trong" />
+              </label>
+              <label>Ngay dang
+                <input id="date" type="date" />
+              </label>
+              <label>The
+                <input id="tags" type="text" placeholder="AI, Van hanh, Nghe" />
+              </label>
+              <label>Read time
+                <input id="read-time" type="text" placeholder="~7 phut doc" />
+              </label>
+              <label>Series key
+                <input id="series" type="text" placeholder="phan-mem-thich-ung" />
+              </label>
+              <label>Series order
+                <input id="series-order" type="number" min="1" step="1" placeholder="1" />
+              </label>
+              <label class="full-span">Series title
+                <input id="series-title" type="text" placeholder="Tieu de tuyen bai" />
+              </label>
+              <label class="full-span">Related slugs
+                <input id="related-slugs" type="text" placeholder="slug-1, slug-2" />
+              </label>
+              <label class="full-span">Call to action
+                <textarea id="call-to-action" rows="3" placeholder="Canh huong ket noi cuoi bai"></textarea>
+              </label>
+            </div>
+            <div class="step-actions">
+              <button class="ghost" data-prev-step="write" type="button">Quay lai</button>
+              <div class="right">
+                <button class="ghost" id="save-meta-btn" type="button">Luu</button>
+                <button class="primary" data-next-step="illustration" type="button">Tiep: Minh hoa</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="step-panel" data-step-panel="illustration" hidden>
+            <div class="field-grid">
+              <label class="full-span">Prompt minh hoa
+                <textarea id="illustration-prompt" rows="4" placeholder="Mo ta y tuong hinh minh hoa de AI doi sang SVG"></textarea>
+              </label>
+              <label class="full-span">SVG minh hoa
+                <textarea id="illustration-svg" placeholder="<svg ...>"></textarea>
+              </label>
+            </div>
+            <div class="step-actions">
+              <button class="ghost" data-prev-step="meta" type="button">Quay lai</button>
+              <div class="right">
+                <button class="secondary" id="illustration-inline-btn" type="button">Tao SVG</button>
+                <button class="ghost" id="save-illustration-btn" type="button">Luu</button>
+                <button class="primary" data-next-step="publish" type="button">Tiep: Duyet dang</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="step-panel" data-step-panel="publish" hidden>
+            <div class="publish-grid">
+              <div class="publish-block">
+                <h3>Duyet noi dung</h3>
+                <p class="field-hint">Approve tao artifact markdown cuoi cung trong R2. Chi artifact da approve moi duoc publish.</p>
+                <button class="secondary" id="review-inline-btn" type="button">Chay AI review</button>
+                <button class="primary" id="approve-btn" type="button">Approve ready</button>
+              </div>
+              <div class="publish-block">
+                <h3>Dang bai</h3>
+                <p class="field-hint">Publish now tao workflow job va commit vao GitHub bang token cua Worker.</p>
+                <button class="warn" id="publish-now-btn" type="button">Publish now</button>
+                <label>Schedule publish
+                  <input id="publish-at" type="datetime-local" />
+                </label>
+                <button class="ghost" id="schedule-btn" type="button">Dat lich dang</button>
+              </div>
+            </div>
+            <div class="step-actions">
+              <button class="ghost" data-prev-step="illustration" type="button">Quay lai</button>
+              <span class="field-hint">Trang thai ready/scheduled/published se hien trong danh sach draft.</span>
+            </div>
+          </section>
+        </div>
       </main>
 
-      <aside class="stack">
-        <section class="panel">
-          <div class="panel-inner stack">
-            <div>
-              <h2>Review va publish</h2>
-              <p class="field-hint">AI chi goi y. Publish can qua buoc phe duyet.</p>
-            </div>
-
-            <div class="toolbar">
-              <button class="secondary" id="review-btn" type="button">AI review</button>
-              <button class="ghost" id="illustration-btn" type="button">AI -> SVG</button>
-              <button class="primary" id="approve-btn" type="button">Approve ready</button>
-              <button class="warn" id="publish-now-btn" type="button">Publish now</button>
-            </div>
-
-            <div class="schedule-row section-divider">
-              <label for="publish-at">Schedule publish</label>
-              <input id="publish-at" type="datetime-local" />
-              <button class="ghost" id="schedule-btn" type="button">Dat lich dang</button>
-            </div>
-
-            <div class="mini-stack">
-              <h3>AI notes</h3>
-              <div class="review-box" id="review-output">Chua co review AI.</div>
-            </div>
+      <aside class="panel preview-panel">
+        <div class="panel-inner stack">
+          <div>
+            <h2>Preview</h2>
+            <p class="field-hint">Preview cap nhat sau moi lan luu, review, tao SVG hoac approve.</p>
           </div>
-        </section>
-
-        <section class="panel">
-          <div class="panel-inner stack">
-            <div>
-              <h2>Preview</h2>
-              <p class="field-hint">Preview v1 du dung de canh bo cuc, title, standfirst va SVG minh hoa.</p>
-            </div>
-            <div class="preview-shell" id="preview-shell">
-              <p class="empty-state">Chon hoac tao draft de xem preview.</p>
-            </div>
+          <div class="preview-shell" id="preview-shell">
+            <p class="empty-state">Chon hoac tao draft de xem preview.</p>
           </div>
-        </section>
+          <div class="mini-stack">
+            <h2>AI notes</h2>
+            <div class="review-box" id="review-output">Chua co review AI.</div>
+          </div>
+        </div>
       </aside>
     </div>
   </div>
 
   <script>
+    const stepMeta = {
+      write: ['Noi dung', 'Viet title va markdown truoc, cac truong khac di sau.'],
+      meta: ['Bien tap', 'Mo ta, slug, tag, tuyen bai va lien ket lien quan.'],
+      illustration: ['Minh hoa', 'Tao hoac chinh SVG truoc khi dua vao artifact publish.'],
+      publish: ['Duyet dang', 'Review, approve, publish ngay hoac dat lich.']
+    };
+
     const state = {
       dashboard: null,
       drafts: [],
       currentId: '',
-      currentDraft: null
+      currentDraft: null,
+      activeStep: 'write'
     };
 
     const els = {
@@ -542,6 +694,10 @@ export function renderStudioApp() {
       preview: document.getElementById('preview-shell'),
       review: document.getElementById('review-output'),
       publishAt: document.getElementById('publish-at'),
+      stepTitle: document.getElementById('step-title'),
+      stepSubtitle: document.getElementById('step-subtitle'),
+      stepButtons: Array.from(document.querySelectorAll('[data-step-target]')),
+      stepPanels: Array.from(document.querySelectorAll('[data-step-panel]')),
       form: {
         id: document.getElementById('draft-id'),
         title: document.getElementById('title'),
@@ -574,19 +730,28 @@ export function renderStudioApp() {
       els.status.dataset.tone = tone || '';
     }
 
+    function setStep(step) {
+      if (!stepMeta[step]) return;
+      state.activeStep = step;
+      els.stepTitle.textContent = stepMeta[step][0];
+      els.stepSubtitle.textContent = stepMeta[step][1];
+      for (const button of els.stepButtons) {
+        button.setAttribute('aria-selected', button.dataset.stepTarget === step ? 'true' : 'false');
+      }
+      for (const panel of els.stepPanels) {
+        panel.hidden = panel.dataset.stepPanel !== step;
+      }
+    }
+
     async function api(path, options) {
       const response = await fetch(path, {
-        headers: {
-          'content-type': 'application/json'
-        },
+        headers: { 'content-type': 'application/json' },
         ...options
       });
-
       const payload = await response.json().catch(function () { return null; });
       if (!response.ok) {
         throw new Error(payload && payload.error ? payload.error : 'Request failed');
       }
-
       return payload;
     }
 
@@ -610,9 +775,7 @@ export function renderStudioApp() {
       };
     }
 
-    function joinList(value) {
-      return Array.isArray(value) ? value.join(', ') : '';
-    }
+    function joinList(value) { return Array.isArray(value) ? value.join(', ') : ''; }
 
     function fillForm(draft) {
       const data = draft || {};
@@ -638,43 +801,27 @@ export function renderStudioApp() {
       fillForm({});
       state.currentId = '';
       state.currentDraft = null;
+      setStep('write');
       renderDraftList();
       renderPreview('');
       renderReview(null);
-      setStatus('Dang tao mot draft moi. Bam "Luu draft" de khoi tao ID.', '');
+      setStatus('Dang tao draft moi. Viet noi dung roi bam Tiep.', '');
     }
 
     function renderReview(review) {
-      if (!review) {
-        els.review.textContent = 'Chua co review AI.';
-        return;
-      }
-
-      els.review.textContent = JSON.stringify(review, null, 2);
+      els.review.textContent = review ? JSON.stringify(review, null, 2) : 'Chua co review AI.';
     }
 
     function renderPreview(previewHtml) {
-      if (!previewHtml) {
-        els.preview.innerHTML = '<p class="empty-state">Chon hoac tao draft de xem preview.</p>';
-        return;
-      }
-
-      els.preview.innerHTML = previewHtml;
+      els.preview.innerHTML = previewHtml || '<p class="empty-state">Chon hoac tao draft de xem preview.</p>';
     }
 
     function renderSummary() {
       const summary = state.dashboard && state.dashboard.summary ? state.dashboard.summary : {
-        draft: 0,
-        ready: 0,
-        scheduled: 0,
-        published: 0
+        draft: 0, ready: 0, scheduled: 0, published: 0
       };
-
       els.summary.innerHTML = [
-        ['Draft', summary.draft],
-        ['Ready', summary.ready],
-        ['Scheduled', summary.scheduled],
-        ['Published', summary.published]
+        ['Draft', summary.draft], ['Ready', summary.ready], ['Scheduled', summary.scheduled], ['Published', summary.published]
       ].map(function (item) {
         return '<div class="stat-card"><strong>' + item[1] + '</strong><span>' + item[0] + '</span></div>';
       }).join('');
@@ -690,8 +837,7 @@ export function renderStudioApp() {
       const scheduled = state.dashboard && state.dashboard.scheduled ? state.dashboard.scheduled : [];
       els.scheduled.innerHTML = scheduled.length
         ? scheduled.map(function (job) {
-            return '<li><strong>' + escapeHtml(job.slug) + '</strong><small>' +
-              escapeHtml(formatDateTime(job.publishAt)) + '</small></li>';
+            return '<li><strong>' + escapeHtml(job.slug) + '</strong><small>' + escapeHtml(formatDateTime(job.publishAt)) + '</small></li>';
           }).join('')
         : '<li><small>Chua co bai nao dang xep lich.</small></li>';
     }
@@ -703,7 +849,6 @@ export function renderStudioApp() {
         return String(draft.title || '').toLowerCase().includes(query) ||
           String(draft.slug || '').toLowerCase().includes(query);
       });
-
       els.draftList.innerHTML = drafts.length
         ? drafts.map(function (draft) {
             const active = draft.id === state.currentId ? 'true' : 'false';
@@ -717,10 +862,7 @@ export function renderStudioApp() {
     }
 
     function applyReview(review) {
-      if (!review) {
-        return;
-      }
-
+      if (!review) return;
       if (!els.form.title.value.trim() && review.title) els.form.title.value = review.title;
       if (!els.form.description.value.trim() && review.description) els.form.description.value = review.description;
       if (!els.form.tags.value.trim() && Array.isArray(review.tags)) els.form.tags.value = review.tags.join(', ');
@@ -734,21 +876,11 @@ export function renderStudioApp() {
     }
 
     function formatDateTime(value) {
-      if (!value) {
-        return 'chua ro';
-      }
-
+      if (!value) return 'chua ro';
       const date = new Date(value);
-      if (Number.isNaN(date.getTime())) {
-        return String(value);
-      }
-
+      if (Number.isNaN(date.getTime())) return String(value);
       return date.toLocaleString('vi-VN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
+        year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
       });
     }
 
@@ -773,16 +905,14 @@ export function renderStudioApp() {
       renderReview(payload.draft.aiReview);
       renderPreview(payload.draft.previewHtml);
       renderDraftList();
+      setStep('write');
       setStatus('Da mo draft "' + (payload.draft.title || payload.draft.slug) + '".', 'success');
       return payload.draft;
     }
 
     async function saveCurrent() {
       setStatus('Dang luu draft...', '');
-      const payload = await api('/api/drafts', {
-        method: 'POST',
-        body: JSON.stringify(readForm())
-      });
+      const payload = await api('/api/drafts', { method: 'POST', body: JSON.stringify(readForm()) });
       state.currentId = payload.draft.id;
       state.currentDraft = payload.draft;
       fillForm(payload.draft);
@@ -794,33 +924,36 @@ export function renderStudioApp() {
     }
 
     async function ensureCurrentDraft() {
-      if (!els.form.body.value.trim()) {
-        throw new Error('Can co noi dung Markdown truoc.');
-      }
+      if (!els.form.body.value.trim()) throw new Error('Can co noi dung Markdown truoc.');
       return saveCurrent();
+    }
+
+    async function saveAndStep(step) {
+      await ensureCurrentDraft();
+      setStep(step);
     }
 
     async function handleReview() {
       const draft = await ensureCurrentDraft();
       setStatus('Dang chay AI review...', '');
       const payload = await api('/api/drafts/' + encodeURIComponent(draft.id) + '/review', {
-        method: 'POST',
-        body: JSON.stringify(readForm())
+        method: 'POST', body: JSON.stringify(readForm())
       });
       renderReview(payload.review);
       applyReview(payload.review);
-      setStatus('AI da tra ve goi y. Ban xem lai truoc khi approve.', 'success');
+      setStep('meta');
+      setStatus('AI da tra ve goi y. Ban xem lai metadata truoc khi approve.', 'success');
     }
 
     async function handleIllustration() {
       const draft = await ensureCurrentDraft();
       setStatus('Dang tao SVG minh hoa...', '');
       const payload = await api('/api/drafts/' + encodeURIComponent(draft.id) + '/illustration', {
-        method: 'POST',
-        body: JSON.stringify(readForm())
+        method: 'POST', body: JSON.stringify(readForm())
       });
       els.form.illustrationSvg.value = payload.illustrationSvg || '';
       renderPreview(payload.previewHtml);
+      setStep('illustration');
       setStatus('Da tao SVG minh hoa. Ban co the chinh tay neu can.', 'success');
     }
 
@@ -828,95 +961,80 @@ export function renderStudioApp() {
       const draft = await ensureCurrentDraft();
       setStatus('Dang dong artifact publish-ready...', '');
       const payload = await api('/api/drafts/' + encodeURIComponent(draft.id) + '/approve', {
-        method: 'POST',
-        body: JSON.stringify(readForm())
+        method: 'POST', body: JSON.stringify(readForm())
       });
       state.currentDraft = payload.draft;
       fillForm(payload.draft);
       renderPreview(payload.draft.previewHtml);
       renderReview(payload.draft.aiReview);
       await loadDashboard();
+      setStep('publish');
       setStatus('Draft da o trang thai ready.', 'success');
     }
 
     async function handlePublish(mode) {
       const draftId = els.form.id.value.trim();
-      if (!draftId) {
-        throw new Error('Can luu va approve draft truoc khi publish.');
-      }
-
+      if (!draftId) throw new Error('Can luu va approve draft truoc khi publish.');
       const body = { mode: mode };
       if (mode === 'schedule') {
-        if (!els.publishAt.value) {
-          throw new Error('Chon thoi diem schedule.');
-        }
+        if (!els.publishAt.value) throw new Error('Chon thoi diem schedule.');
         body.publishAt = new Date(els.publishAt.value).toISOString();
       }
-
       setStatus(mode === 'now' ? 'Dang tao publish job...' : 'Dang dat lich publish...', '');
       const payload = await api('/api/drafts/' + encodeURIComponent(draftId) + '/publish', {
-        method: 'POST',
-        body: JSON.stringify(body)
+        method: 'POST', body: JSON.stringify(body)
       });
       await loadDashboard();
       await loadDraft(draftId);
+      setStep('publish');
       setStatus(payload.message, 'success');
     }
 
-    document.getElementById('new-draft-btn').addEventListener('click', function () {
-      clearForm();
-    });
-
-    document.getElementById('save-btn').addEventListener('click', function () {
-      saveCurrent().catch(function (error) {
-        setStatus(error.message, 'error');
+    function wireClick(id, handler) {
+      const node = document.getElementById(id);
+      if (!node) return;
+      node.addEventListener('click', function () {
+        handler().catch(function (error) { setStatus(error.message, 'error'); });
       });
-    });
+    }
 
-    document.getElementById('review-btn').addEventListener('click', function () {
-      handleReview().catch(function (error) {
-        setStatus(error.message, 'error');
-      });
-    });
+    document.getElementById('new-draft-btn').addEventListener('click', function () { clearForm(); });
+    wireClick('save-btn', saveCurrent);
+    wireClick('save-write-btn', saveCurrent);
+    wireClick('save-meta-btn', saveCurrent);
+    wireClick('save-illustration-btn', saveCurrent);
+    wireClick('review-btn', handleReview);
+    wireClick('review-inline-btn', handleReview);
+    wireClick('illustration-btn', handleIllustration);
+    wireClick('illustration-inline-btn', handleIllustration);
+    wireClick('approve-btn', handleApprove);
+    wireClick('publish-now-btn', function () { return handlePublish('now'); });
+    wireClick('schedule-btn', function () { return handlePublish('schedule'); });
 
-    document.getElementById('illustration-btn').addEventListener('click', function () {
-      handleIllustration().catch(function (error) {
-        setStatus(error.message, 'error');
-      });
-    });
+    for (const button of els.stepButtons) {
+      button.addEventListener('click', function () { setStep(button.dataset.stepTarget); });
+    }
 
-    document.getElementById('approve-btn').addEventListener('click', function () {
-      handleApprove().catch(function (error) {
-        setStatus(error.message, 'error');
+    for (const button of document.querySelectorAll('[data-next-step]')) {
+      button.addEventListener('click', function () {
+        saveAndStep(button.dataset.nextStep).catch(function (error) { setStatus(error.message, 'error'); });
       });
-    });
+    }
 
-    document.getElementById('publish-now-btn').addEventListener('click', function () {
-      handlePublish('now').catch(function (error) {
-        setStatus(error.message, 'error');
-      });
-    });
-
-    document.getElementById('schedule-btn').addEventListener('click', function () {
-      handlePublish('schedule').catch(function (error) {
-        setStatus(error.message, 'error');
-      });
-    });
+    for (const button of document.querySelectorAll('[data-prev-step]')) {
+      button.addEventListener('click', function () { setStep(button.dataset.prevStep); });
+    }
 
     els.search.addEventListener('input', renderDraftList);
     els.draftList.addEventListener('click', function (event) {
       const button = event.target.closest('[data-draft-id]');
-      if (!button) {
-        return;
-      }
-
-      loadDraft(button.dataset.draftId).catch(function (error) {
-        setStatus(error.message, 'error');
-      });
+      if (!button) return;
+      loadDraft(button.dataset.draftId).catch(function (error) { setStatus(error.message, 'error'); });
     });
 
     (async function init() {
       try {
+        setStep('write');
         await loadSession();
         await loadDashboard();
         if (state.drafts.length) {
