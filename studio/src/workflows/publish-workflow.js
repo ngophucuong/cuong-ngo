@@ -8,7 +8,14 @@ export class PublishWorkflow extends WorkflowEntrypoint {
 
     try {
       if (publishAt) {
-        await step.sleepUntil('wait-until-publish', publishAt);
+        const publishDate = new Date(publishAt);
+        if (Number.isNaN(publishDate.getTime())) {
+          throw new Error(`Invalid publishAt: ${publishAt}`);
+        }
+
+        if (publishDate.getTime() > Date.now()) {
+          await step.sleepUntil('wait-until-publish', publishDate);
+        }
       }
 
       const publishResult = await step.do('publish-approved-artifact', {
