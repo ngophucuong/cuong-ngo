@@ -292,11 +292,49 @@ function useSuggestion(current, suggested) {
   return String(suggested || '').trim();
 }
 
+function normalizeComparableText(value = '') {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[“”"'`.,!?…:;()\[\]{}_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function firstMeaningfulBodyLine(body = '') {
+  return String(body || '')
+    .replace(/^---\n[\s\S]*?\n---\n*/, '')
+    .split('\n')
+    .map((line) => line.replace(/^#+\s+/, '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim())
+    .find((line) => line.length >= 20) || '';
+}
+
+function isWeakPreparedDescription(description, payload, review) {
+  const normalized = normalizeComparableText(description);
+  if (!normalized || normalized.length < 35) {
+    return true;
+  }
+
+  const title = normalizeComparableText(payload.title || review.title || '');
+  const firstLine = normalizeComparableText(firstMeaningfulBodyLine(payload.body || ''));
+  return normalized === title || normalized === firstLine || (title && normalized.includes(title));
+}
+
+function useDescriptionSuggestion(payload, review) {
+  const currentText = String(payload.description || '').trim();
+  const suggested = String(review.description || '').trim();
+  if (!currentText || isWeakPreparedDescription(currentText, payload, review)) {
+    return suggested || currentText;
+  }
+  return currentText;
+}
+
 function mergePreparedInput(payload, review) {
   return {
     ...payload,
     title: useSuggestion(payload.title, review.title),
-    description: useSuggestion(payload.description, review.description),
+    description: useDescriptionSuggestion(payload, review),
     tags: useSuggestion(payload.tags, joinSuggestedList(review.tags)),
     readTime: useSuggestion(payload.readTime, review.readTime),
     series: useSuggestion(payload.series, review.series),

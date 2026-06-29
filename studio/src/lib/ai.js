@@ -1,4 +1,4 @@
-import { estimateReadTime, normalizeMetadata } from './markdown.js';
+import { estimateReadTime, normalizeMetadata, stripMarkdown } from './markdown.js';
 
 function safeJsonParse(input) {
   try {
@@ -33,13 +33,50 @@ function clampList(value, limit = 2) {
     .slice(0, limit);
 }
 
+function normalizeComparable(value = '') {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[“”"'`.,!?…:;()\[\]{}_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function firstMeaningfulLine(markdown = '') {
+  return stripMarkdown(markdown)
+    .split('\n')
+    .map((line) => line.replace(/\s+/g, ' ').trim())
+    .find((line) => line.length >= 20) || '';
+}
+
+function isWeakDescription(description, meta) {
+  const normalized = normalizeComparable(description);
+  if (!normalized || normalized.length < 35) {
+    return true;
+  }
+
+  const title = normalizeComparable(meta.title);
+  const firstLine = normalizeComparable(firstMeaningfulLine(meta.body));
+  return normalized === title || normalized === firstLine || (title && normalized.includes(title));
+}
+
+function buildCuriosityDescription(meta) {
+  const text = stripMarkdown(meta.body).replace(/\s+/g, ' ').trim();
+  if (/\bAI\b/i.test(text)) {
+    return 'Một tình huống nhỏ đặt lại câu hỏi lớn: khi nào AI thật sự giúp người, và khi nào nó chỉ làm mọi thứ thêm ồn ào?';
+  }
+
+  return 'Một lát cắt nhỏ mở ra câu hỏi lớn hơn: đâu là vấn đề thật phía sau những điều tưởng như đã rõ?';
+}
+
 function buildFallbackReview(draft, publishedSlugs = []) {
   const meta = normalizeMetadata(draft);
   const relatedSlugs = publishedSlugs.filter((slug) => slug !== meta.slug).slice(0, 2);
 
   return {
     title: meta.title,
-    description: meta.description,
+    description: isWeakDescription(meta.description, meta) ? buildCuriosityDescription(meta) : meta.description,
     tags: meta.tags,
     readTime: meta.readTime || estimateReadTime(meta.body),
     series: meta.series || '',
@@ -56,10 +93,16 @@ function buildFallbackReview(draft, publishedSlugs = []) {
   };
 }
 
-function sanitizeReview(review, fallback) {
+function sanitizeReview(review, fallback, meta) {
+  const title = String(review?.title || fallback.title).trim();
+  let description = String(review?.description || fallback.description).trim();
+  if (isWeakDescription(description, { ...meta, title })) {
+    description = fallback.description;
+  }
+
   return {
-    title: String(review?.title || fallback.title).trim(),
-    description: String(review?.description || fallback.description).trim(),
+    title,
+    description,
     tags: clampList(review?.tags || fallback.tags || [], 5),
     readTime: String(review?.readTime || fallback.readTime).trim(),
     series: String(review?.series || fallback.series || '').trim(),
@@ -142,10 +185,14 @@ export async function runEditorialReview(env, draft, publishedSlugs = []) {
     'JSON phải có các khoá:',
     'title, description, tags, readTime, series, seriesOrder, seriesTitle, relatedSlugs, callToAction, visualPrompt, editorialNotes, safetyFlags',
     'Ràng buộc:',
-    '- description <= 180 ký tự',
+    '- description <= 180 ký tự, là standfirst nằm dưới title',
+    '- description phải gợi tò mò bằng mâu thuẫn/câu hỏi chính; không tiết lộ hết kết luận',
+    '- description KHÔNG được trùng title, không lặp câu mở đầu, không copy nguyên văn một câu trong bài',
+    '- nếu description hiện tại yếu/trùng lặp, hãy thay hoàn toàn bằng mô tả mới',
     '- tags tối đa 5 mục',
     '- relatedSlugs tối đa 2 mục, chỉ chọn từ danh sách cho sẵn',
     '- giữ giọng văn trầm, thật, không khoe khoang',
+    '- tránh mở description bằng dấu ngoặc kép nếu chỉ đang lặp một câu nói trong bài',
     '',
     `Danh sách slug đã có thể tham chiếu: ${publishedSlugs.join(', ') || '(chưa có)'}`,
     '',
@@ -179,7 +226,7 @@ export async function runEditorialReview(env, draft, publishedSlugs = []) {
       : String(result?.response || result?.result?.response || '');
     const parsed = extractJson(text);
 
-    return sanitizeReview(parsed, fallback);
+    return sanitizeReview(parsed, fallback, normalizeMetadata(draft));
   } catch {
     return fallback;
   }
