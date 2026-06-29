@@ -1,0 +1,48 @@
+name: Deploy Studio Worker
+
+# Deploy worker `studio/` lên Cloudflare khi có thay đổi được merge vào main.
+# Có thể chạy tay từ tab Actions (workflow_dispatch) sau khi workflow đã ở main.
+#
+# Yêu cầu secret trong repo (Settings → Secrets and variables → Actions):
+#   - CLOUDFLARE_API_TOKEN   (bắt buộc) token có quyền Edit Workers + D1
+#   - CLOUDFLARE_ACCOUNT_ID  (tùy chọn) chỉ cần nếu token thấy nhiều account
+#
+# Lưu ý: GITHUB_TOKEN mà worker dùng để commit bài là Cloudflare secret riêng
+# (đặt bằng `wrangler secret put GITHUB_TOKEN`), không liên quan tới CI này.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'studio/**'
+      - '.github/workflows/deploy-studio.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-studio
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Apply D1 migrations
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.97.0'
+          workingDirectory: studio
+          command: d1 migrations apply cuong-ngo-studio --remote
+
+      - name: Deploy worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.97.0'
+          workingDirectory: studio
+          command: deploy
