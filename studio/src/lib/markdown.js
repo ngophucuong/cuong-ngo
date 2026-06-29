@@ -91,6 +91,18 @@ function toDateString(value) {
   return String(value).slice(0, 10);
 }
 
+function renderImageFigure(src, alt) {
+  if (!src) {
+    return '';
+  }
+
+  return [
+    '<figure class="article-illustration">',
+    `  <img src="${escapeHtml(src)}" alt="${escapeHtml(alt || '')}" loading="lazy" decoding="async" />`,
+    '</figure>',
+  ].join('\n');
+}
+
 export function normalizeMetadata(input = {}) {
   const rawBody = stripFrontmatter(String(input.body || ''));
   const title = String(input.title || '').trim() || extractTitleFromMarkdown(rawBody) || 'Bản nháp chưa đặt tên';
@@ -115,6 +127,9 @@ export function normalizeMetadata(input = {}) {
     callToAction: String(input.callToAction || '').trim() || undefined,
     illustrationPrompt: String(input.illustrationPrompt || '').trim() || undefined,
     illustrationSvg: illustrationSvg || undefined,
+    illustrationImagePath: String(input.illustrationImagePath || '').trim() || undefined,
+    illustrationImageUrl: String(input.illustrationImageUrl || '').trim() || undefined,
+    illustrationImageAlt: String(input.illustrationImageAlt || '').trim() || title,
     body,
   };
 }
@@ -237,7 +252,10 @@ function renderBlocks(markdown = '') {
 
 export function renderPreview(input = {}) {
   const meta = normalizeMetadata(input);
-  const illustration = meta.illustrationSvg
+  const imageUrl = meta.illustrationImageUrl || meta.illustrationImagePath;
+  const illustration = imageUrl
+    ? renderImageFigure(imageUrl, meta.illustrationImageAlt)
+    : meta.illustrationSvg
     ? `<figure class="article-illustration">${meta.illustrationSvg}</figure>`
     : '';
 
@@ -253,7 +271,10 @@ export function renderPreview(input = {}) {
 export function buildPublishArtifact(input = {}) {
   const meta = normalizeMetadata(input);
   const frontmatter = buildFrontmatter(meta);
-  const illustrationBlock = meta.illustrationSvg
+  const imagePath = meta.illustrationImagePath || '';
+  const illustrationBlock = imagePath
+    ? `${renderImageFigure(imagePath, meta.illustrationImageAlt)}\n\n`
+    : meta.illustrationSvg
     ? `<figure class="article-illustration">\n${meta.illustrationSvg.trim()}\n</figure>\n\n`
     : '';
   const artifact = `${frontmatter}${illustrationBlock}${meta.body.trim()}\n`;

@@ -1,6 +1,6 @@
 import { WorkflowEntrypoint } from 'cloudflare:workers';
 import { publishArtifactToGitHub } from '../lib/github.js';
-import { getDraft, markPublishFailure, markPublishSuccess } from '../lib/storage.js';
+import { getDraft, getDraftIllustrationPublishAsset, markPublishFailure, markPublishSuccess } from '../lib/storage.js';
 
 export class PublishWorkflow extends WorkflowEntrypoint {
   async run(event, step) {
@@ -24,11 +24,13 @@ export class PublishWorkflow extends WorkflowEntrypoint {
           throw new Error('Approved artifact not found');
         }
 
+        const imageAsset = await getDraftIllustrationPublishAsset(this.env, draft);
         return publishArtifactToGitHub(this.env, {
           slug: draft.slug,
           title: draft.title,
           artifact: draft.artifact,
           actorEmail,
+          assets: imageAsset ? [imageAsset] : [],
         });
       });
 

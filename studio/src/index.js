@@ -2,7 +2,7 @@ import { error, html, json, readJson, withCors } from './lib/http.js';
 import { renderPreview } from './lib/markdown.js';
 import { renderStudioApp } from './lib/ui.js';
 import { generateIllustrationSvg, runEditorialReview } from './lib/ai.js';
-import { attachWorkflowInstance, approveDraft, createPublishJob, getDashboard, getDraft, listDrafts, recordViewEvent, saveDraft, saveReview } from './lib/storage.js';
+import { attachWorkflowInstance, approveDraft, createPublishJob, getDashboard, getDraft, getDraftIllustrationImageObject, listDrafts, recordViewEvent, saveDraft, saveDraftIllustrationImage, saveReview } from './lib/storage.js';
 import { listPublishedPosts, listPublishedSlugs, recallPublishedPostFromGitHub } from './lib/github.js';
 import { PublishWorkflow } from './workflows/publish-workflow.js';
 
@@ -221,6 +221,49 @@ async function handleIllustration(request, env) {
   });
 }
 
+async function handleUploadIllustrationImage(request, env, draftId) {
+  const session = requireSession(request);
+  if (request.method !== 'POST') {
+    return error('Method not allowed', 405);
+  }
+
+  const form = await request.formData();
+  const file = form.get('image');
+  const alt = String(form.get('alt') || '').trim();
+  const draft = await saveDraftIllustrationImage(env, {
+    draftId,
+    file,
+    alt,
+  }, session.email);
+
+  return json({
+    ok: true,
+    draft,
+    message: 'Đã tải ảnh minh hoạ lên draft. Hãy approve lại trước khi publish.',
+  });
+}
+
+async function handleDraftIllustrationImage(request, env, draftId) {
+  requireSession(request);
+  if (request.method !== 'GET') {
+    return error('Method not allowed', 405);
+  }
+
+  const result = await getDraftIllustrationImageObject(env, draftId);
+  if (!result) {
+    return error('Image not found', 404);
+  }
+
+  const headers = new Headers();
+  headers.set('content-type', result.image.contentType || 'application/octet-stream');
+  headers.set('cache-control', 'private, max-age=60');
+  if (result.image.fileName) {
+    headers.set('content-disposition', `inline; filename="${encodeURIComponent(result.image.fileName)}"`);
+  }
+
+  return new Response(result.object.body, { headers });
+}
+
 
 function joinSuggestedList(value) {
   return Array.isArray(value) ? value.map((item) => String(item).trim()).filter(Boolean).join(', ') : '';
@@ -402,6 +445,14 @@ export default {
 
       if (draftRoute?.id && draftRoute.action === 'illustration' && request.method === 'POST') {
         return await handleIllustration(request, env);
+      }
+
+      if (draftRoute?.id && draftRoute.action === 'illustration-image' && request.method === 'POST') {
+        return await handleUploadIllustrationImage(request, env, draftRoute.id);
+      }
+
+      if (draftRoute?.id && draftRoute.action === 'illustration-image' && request.method === 'GET') {
+        return await handleDraftIllustrationImage(request, env, draftRoute.id);
       }
 
       if (draftRoute?.id && draftRoute.action === 'approve' && request.method === 'POST') {

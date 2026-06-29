@@ -125,6 +125,87 @@ export async function getRepoFile(env, path) {
   return response.json();
 }
 
+async function createGitBlob(env, content, encoding = 'utf-8') {
+  return githubRequest(env, `/repos/${env.GITHUB_REPOSITORY}/git/blobs`, {
+    method: 'POST',
+    body: JSON.stringify({ content, encoding }),
+  });
+}
+
+function githubIdentity(actorEmail) {
+  return {
+    name: 'Cuong Ngo Studio',
+    email: actorEmail || 'info@cuong.ngo',
+  };
+}
+
+function normalizeRepoPath(path) {
+  return String(path || '').replace(/^\/+/, '');
+}
+
+async function commitFilesToGitHub(env, { message, files, actorEmail }) {
+  const branch = env.GITHUB_BRANCH;
+  const identity = githubIdentity(actorEmail);
+  const headRef = await githubRequest(
+    env,
+    `/repos/${env.GITHUB_REPOSITORY}/git/ref/heads/${encodeURIComponent(branch)}`,
+  );
+  const headSha = headRef.object?.sha;
+  if (!headSha) {
+    throw new Error('GitHub branch head not found');
+  }
+
+  const headCommit = await githubRequest(
+    env,
+    `/repos/${env.GITHUB_REPOSITORY}/git/commits/${headSha}`,
+  );
+  const treeEntries = [];
+
+  for (const file of files) {
+    const repoPath = normalizeRepoPath(file.path);
+    if (!repoPath) {
+      throw new Error('Missing GitHub file path');
+    }
+
+    const blob = file.encoding === 'base64'
+      ? await createGitBlob(env, file.content, 'base64')
+      : await createGitBlob(env, String(file.content || ''), 'utf-8');
+
+    treeEntries.push({
+      path: repoPath,
+      mode: '100644',
+      type: 'blob',
+      sha: blob.sha,
+    });
+  }
+
+  const tree = await githubRequest(env, `/repos/${env.GITHUB_REPOSITORY}/git/trees`, {
+    method: 'POST',
+    body: JSON.stringify({
+      base_tree: headCommit.tree?.sha,
+      tree: treeEntries,
+    }),
+  });
+
+  const commit = await githubRequest(env, `/repos/${env.GITHUB_REPOSITORY}/git/commits`, {
+    method: 'POST',
+    body: JSON.stringify({
+      message,
+      tree: tree.sha,
+      parents: [headSha],
+      author: identity,
+      committer: identity,
+    }),
+  });
+
+  await githubRequest(env, `/repos/${env.GITHUB_REPOSITORY}/git/refs/heads/${encodeURIComponent(branch)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ sha: commit.sha }),
+  });
+
+  return commit;
+}
+
 export async function listPublishedSlugs(env) {
   const items = await githubRequest(
     env,
@@ -136,40 +217,57 @@ export async function listPublishedSlugs(env) {
     .map((item) => item.name.replace(/\.md$/, ''));
 }
 
-export async function publishArtifactToGitHub(env, { slug, artifact, title, actorEmail }) {
+export async function publishArtifactToGitHub(env, { slug, artifact, title, actorEmail, assets = [] }) {
   const targetPath = buildTargetPath(env, slug);
   const current = await getRepoFile(env, targetPath);
-  const payload = {
-    message: `${current ? 'update' : 'publish'}(blog): ${title || slug}`,
-    content: utf8ToBase64(artifact),
-    branch: env.GITHUB_BRANCH,
-    committer: {
-      name: 'Cuong Ngo Studio',
-      email: actorEmail || 'info@cuong.ngo',
-    },
-    author: {
-      name: 'Cuong Ngo Studio',
-      email: actorEmail || 'info@cuong.ngo',
-    },
-  };
+  const message = `${current ? 'update' : 'publish'}(blog): ${title || slug}`;
 
-  if (current?.sha) {
-    payload.sha = current.sha;
+  if (!assets.length) {
+    const identity = githubIdentity(actorEmail);
+    const payload = {
+      message,
+      content: utf8ToBase64(artifact),
+      branch: env.GITHUB_BRANCH,
+      committer: identity,
+      author: identity,
+    };
+
+    if (current?.sha) {
+      payload.sha = current.sha;
+    }
+
+    const result = await githubRequest(
+      env,
+      `/repos/${env.GITHUB_REPOSITORY}/contents/${encodeContentPath(targetPath)}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      },
+    );
+
+    return {
+      path: targetPath,
+      commitSha: result.commit?.sha || null,
+      url: result.content?.html_url || null,
+      assetPaths: [],
+    };
   }
 
-  const result = await githubRequest(
-    env,
-    `/repos/${env.GITHUB_REPOSITORY}/contents/${encodeContentPath(targetPath)}`,
-    {
-      method: 'PUT',
-      body: JSON.stringify(payload),
-    },
-  );
+  const files = [
+    { path: targetPath, content: artifact, encoding: 'utf-8' },
+    ...assets.map((asset) => ({
+      path: asset.path,
+      content: bytesToBase64(asset.content || new Uint8Array()),
+      encoding: 'base64',
+    })),
+  ];
+  const commit = await commitFilesToGitHub(env, { message, files, actorEmail });
 
   return {
     path: targetPath,
-    commitSha: result.commit?.sha || null,
-    url: result.content?.html_url || null,
+    commitSha: commit.sha || null,
+    url: `https://github.com/${env.GITHUB_REPOSITORY}/blob/${env.GITHUB_BRANCH}/${targetPath}`,
+    assetPaths: assets.map((asset) => normalizeRepoPath(asset.path)),
   };
 }
 

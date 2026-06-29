@@ -340,6 +340,45 @@ export function renderStudioApp() {
       line-height: 1.5;
     }
 
+    .image-upload-card {
+      display: grid;
+      gap: 0.75rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+      padding: 0.9rem;
+    }
+
+    .image-upload-card strong {
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    .image-upload-card input[type="file"] {
+      border-style: dashed;
+      background: var(--panel);
+      cursor: pointer;
+    }
+
+    .image-preview {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .image-preview img {
+      display: block;
+      width: 100%;
+      max-height: 220px;
+      object-fit: contain;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    .image-preview small {
+      color: var(--muted);
+    }
+
     .step-actions {
       display: flex;
       justify-content: space-between;
@@ -638,6 +677,17 @@ export function renderStudioApp() {
               <label class="full-span">Prompt minh hoạ
                 <textarea id="illustration-prompt" rows="4" placeholder="Mô tả ý tưởng hình minh hoạ để AI đổi sang SVG"></textarea>
               </label>
+              <div class="full-span image-upload-card">
+                <div>
+                  <strong>Ảnh minh hoạ PNG/JPG/WebP</strong>
+                  <p class="field-hint">Dùng cho ảnh thật, screenshot hoặc chân dung. Nếu có ảnh upload, bài publish sẽ ưu tiên ảnh này thay vì SVG.</p>
+                </div>
+                <input id="illustration-image-file" type="file" accept="image/png,image/jpeg,image/webp" />
+                <label>Alt ảnh
+                  <input id="illustration-image-alt" type="text" placeholder="Mô tả ngắn cho người đọc và SEO" />
+                </label>
+                <div class="image-preview" id="illustration-image-preview"><small>Chưa có ảnh upload.</small></div>
+              </div>
               <label class="full-span">SVG minh hoạ
                 <textarea id="illustration-svg" placeholder="<svg ...>"></textarea>
               </label>
@@ -645,6 +695,7 @@ export function renderStudioApp() {
             <div class="step-actions">
               <button class="ghost" data-prev-step="meta" type="button">Quay lại</button>
               <div class="right">
+                <button class="secondary" id="upload-image-btn" type="button">Tải ảnh lên</button>
                 <button class="secondary" id="illustration-inline-btn" type="button">Tạo SVG</button>
                 <button class="ghost" id="save-illustration-btn" type="button">Lưu</button>
                 <button class="primary" data-next-step="publish" type="button">Tiếp: Duyệt đăng</button>
@@ -700,7 +751,7 @@ export function renderStudioApp() {
     const stepMeta = {
       write: ['Nội dung', 'Viết title và markdown trước, các trường khác đi sau.'],
       meta: ['Biên tập', 'Mô tả, slug, tag, tuyến bài và liên kết liên quan.'],
-      illustration: ['Minh hoạ', 'Tạo hoặc chỉnh SVG trước khi đưa vào artifact publish.'],
+      illustration: ['Minh hoạ', 'Upload ảnh thật hoặc tạo/chỉnh SVG trước khi publish.'],
       publish: ['Duyệt đăng', 'Review, approve, publish ngay hoặc đặt lịch.']
     };
 
@@ -725,6 +776,7 @@ export function renderStudioApp() {
       preview: document.getElementById('preview-shell'),
       review: document.getElementById('review-output'),
       publishAt: document.getElementById('publish-at'),
+      imagePreview: document.getElementById('illustration-image-preview'),
       stepTitle: document.getElementById('step-title'),
       stepSubtitle: document.getElementById('step-subtitle'),
       stepButtons: Array.from(document.querySelectorAll('[data-step-target]')),
@@ -743,6 +795,8 @@ export function renderStudioApp() {
         relatedSlugs: document.getElementById('related-slugs'),
         callToAction: document.getElementById('call-to-action'),
         illustrationPrompt: document.getElementById('illustration-prompt'),
+        illustrationImageFile: document.getElementById('illustration-image-file'),
+        illustrationImageAlt: document.getElementById('illustration-image-alt'),
         illustrationSvg: document.getElementById('illustration-svg'),
         body: document.getElementById('body')
       }
@@ -801,12 +855,34 @@ export function renderStudioApp() {
         relatedSlugs: els.form.relatedSlugs.value,
         callToAction: els.form.callToAction.value,
         illustrationPrompt: els.form.illustrationPrompt.value,
+        illustrationImageAlt: els.form.illustrationImageAlt.value,
+        illustrationImageUrl: state.currentDraft && state.currentDraft.illustrationImage ? state.currentDraft.illustrationImage.draftUrl : '',
         illustrationSvg: els.form.illustrationSvg.value,
         body: els.form.body.value
       };
     }
 
     function joinList(value) { return Array.isArray(value) ? value.join(', ') : ''; }
+
+    function formatBytes(value) {
+      const size = Number(value || 0);
+      if (!size) return 'không rõ dung lượng';
+      if (size < 1024 * 1024) return Math.round(size / 1024) + 'KB';
+      return (size / (1024 * 1024)).toFixed(1) + 'MB';
+    }
+
+    function renderImageCard(image) {
+      if (!els.imagePreview) return;
+      if (!image || !image.draftUrl) {
+        els.imagePreview.innerHTML = '<small>Chưa có ảnh upload.</small>';
+        return;
+      }
+
+      const alt = image.alt || els.form.title.value || 'Ảnh minh hoạ';
+      const meta = [image.fileName || 'cover', image.contentType || '', formatBytes(image.size)].filter(Boolean).join(' · ');
+      els.imagePreview.innerHTML = '<img src="' + escapeHtml(image.draftUrl) + '" alt="' + escapeHtml(alt) + '" />' +
+        '<small>' + escapeHtml(meta) + '</small>';
+    }
 
     function fillForm(draft) {
       const data = draft || {};
@@ -823,9 +899,11 @@ export function renderStudioApp() {
       els.form.relatedSlugs.value = joinList(data.relatedSlugs);
       els.form.callToAction.value = data.callToAction || '';
       els.form.illustrationPrompt.value = data.illustrationPrompt || '';
+      els.form.illustrationImageAlt.value = data.illustrationImageAlt || data.illustrationImage?.alt || '';
       els.form.illustrationSvg.value = data.illustrationSvg || '';
       els.form.body.value = data.body || '';
       els.publishAt.value = '';
+      renderImageCard(data.illustrationImage);
     }
 
     function clearForm() {
@@ -1031,6 +1109,37 @@ export function renderStudioApp() {
       setStatus('AI đã trả về gợi ý. Bạn xem lại metadata trước khi approve.', 'success');
     }
 
+    async function handleUploadImage() {
+      const file = els.form.illustrationImageFile.files && els.form.illustrationImageFile.files[0];
+      if (!file) throw new Error('Chọn ảnh PNG, JPG hoặc WebP trước.');
+      if (!els.form.illustrationImageAlt.value.trim()) {
+        els.form.illustrationImageAlt.value = els.form.title.value.trim() || file.name;
+      }
+
+      const draft = await ensureCurrentDraft();
+      const form = new FormData();
+      form.append('image', file);
+      form.append('alt', els.form.illustrationImageAlt.value.trim());
+
+      setStatus('Đang tải ảnh minh hoạ...', '');
+      const response = await fetch('/api/drafts/' + encodeURIComponent(draft.id) + '/illustration-image', {
+        method: 'POST',
+        body: form
+      });
+      const payload = await response.json().catch(function () { return null; });
+      if (!response.ok) {
+        throw new Error(payload && payload.error ? payload.error : 'Không upload được ảnh.');
+      }
+
+      state.currentDraft = payload.draft;
+      fillForm(payload.draft);
+      els.form.illustrationImageFile.value = '';
+      renderPreview(payload.draft.previewHtml);
+      await loadDashboard();
+      setStep('illustration');
+      setStatus(payload.message || 'Đã tải ảnh minh hoạ.', 'success');
+    }
+
     async function handleIllustration() {
       const draft = await ensureCurrentDraft();
       setStatus('Đang tạo SVG minh hoạ...', '');
@@ -1092,6 +1201,7 @@ export function renderStudioApp() {
     wireClick('prepare-btn', handlePrepare);
     wireClick('prepare-write-btn', handlePrepare);
     wireClick('review-inline-btn', handleReview);
+    wireClick('upload-image-btn', handleUploadImage);
     wireClick('illustration-inline-btn', handleIllustration);
     wireClick('approve-btn', handleApprove);
     wireClick('publish-now-btn', function () { return handlePublish('now'); });
@@ -1110,6 +1220,13 @@ export function renderStudioApp() {
     for (const button of document.querySelectorAll('[data-prev-step]')) {
       button.addEventListener('click', function () { setStep(button.dataset.prevStep); });
     }
+
+    els.form.illustrationImageFile.addEventListener('change', function () {
+      const file = els.form.illustrationImageFile.files && els.form.illustrationImageFile.files[0];
+      if (file && !els.form.illustrationImageAlt.value.trim()) {
+        els.form.illustrationImageAlt.value = els.form.title.value.trim() || file.name;
+      }
+    });
 
     els.search.addEventListener('input', renderDraftList);
     els.draftList.addEventListener('click', function (event) {

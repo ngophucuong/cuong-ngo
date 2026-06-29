@@ -46,6 +46,85 @@ function draftArtifactKey(id) {
   return `drafts/${id}/approved.md`;
 }
 
+const MAX_ILLUSTRATION_IMAGE_BYTES = 4 * 1024 * 1024;
+const IMAGE_EXTENSIONS = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+};
+
+function normalizeImageType(contentType = '') {
+  const normalized = String(contentType || '').split(';')[0].trim().toLowerCase();
+  return IMAGE_EXTENSIONS[normalized] ? normalized : '';
+}
+
+function imageExtension(contentType = '') {
+  return IMAGE_EXTENSIONS[normalizeImageType(contentType)] || 'jpg';
+}
+
+function draftIllustrationImageKey(id, contentType) {
+  return `drafts/${id}/images/cover-${crypto.randomUUID()}.${imageExtension(contentType)}`;
+}
+
+export function buildPublicIllustrationPath(slug, contentType) {
+  return `/images/blog/${slug}/cover.${imageExtension(contentType)}`;
+}
+
+function buildRepoIllustrationPath(slug, contentType) {
+  return `public/images/blog/${slug}/cover.${imageExtension(contentType)}`;
+}
+
+function rowToIllustrationImage(row) {
+  if (!row?.illustration_image_key) {
+    return null;
+  }
+
+  return {
+    key: row.illustration_image_key,
+    fileName: row.illustration_image_name || '',
+    contentType: row.illustration_image_type || '',
+    size: Number(row.illustration_image_size || 0),
+    alt: row.illustration_image_alt || '',
+    draftUrl: `/api/drafts/${encodeURIComponent(row.id)}/illustration-image?v=${encodeURIComponent(row.updated_at || '')}`,
+  };
+}
+
+function withPublishImagePath(row, input) {
+  if (!row?.illustration_image_key) {
+    return input;
+  }
+
+  const meta = normalizeMetadata(input);
+  const publicPath = buildPublicIllustrationPath(meta.slug, row.illustration_image_type);
+  return {
+    ...input,
+    illustrationImagePath: publicPath,
+    illustrationImageUrl: publicPath,
+  };
+}
+
+function validateImageFile(file) {
+  if (!file || typeof file.stream !== 'function') {
+    throw new Error('Không tìm thấy file ảnh upload');
+  }
+
+  const contentType = normalizeImageType(file.type);
+  if (!contentType) {
+    throw new Error('Chỉ hỗ trợ ảnh PNG, JPG hoặc WebP');
+  }
+
+  const size = Number(file.size || 0);
+  if (!size) {
+    throw new Error('File ảnh đang rỗng');
+  }
+
+  if (size > MAX_ILLUSTRATION_IMAGE_BYTES) {
+    throw new Error('Ảnh minh hoạ tối đa 4MB');
+  }
+
+  return { contentType, size };
+}
+
 function rowToSummary(row) {
   return {
     id: row.id,
@@ -59,6 +138,7 @@ function rowToSummary(row) {
 }
 
 function rowToInput(row, body = '') {
+  const illustrationImage = rowToIllustrationImage(row);
   return {
     id: row.id,
     slug: row.slug,
@@ -74,6 +154,9 @@ function rowToInput(row, body = '') {
     callToAction: row.call_to_action || '',
     illustrationPrompt: row.illustration_prompt || '',
     illustrationSvg: row.illustration_svg || '',
+    illustrationImage,
+    illustrationImageAlt: row.illustration_image_alt || '',
+    illustrationImageUrl: illustrationImage?.draftUrl || '',
     body,
   };
 }
@@ -139,6 +222,11 @@ export async function saveDraft(env, payload, actorEmail) {
       call_to_action: '',
       illustration_prompt: '',
       illustration_svg: '',
+      illustration_image_key: null,
+      illustration_image_name: '',
+      illustration_image_type: '',
+      illustration_image_size: 0,
+      illustration_image_alt: '',
     }, existingBody),
     ...payload,
     id: draftId,
@@ -156,9 +244,10 @@ export async function saveDraft(env, payload, actorEmail) {
   await env.DB.prepare(`
     INSERT INTO drafts (
       id, slug, title, description, tags_json, read_time, date, series, series_order, series_title,
-      related_slugs_json, call_to_action, illustration_prompt, illustration_svg, ai_review_json,
-      status, source_key, artifact_key, scheduled_for, published_at, created_by, updated_by, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      related_slugs_json, call_to_action, illustration_prompt, illustration_svg,
+      illustration_image_key, illustration_image_name, illustration_image_type, illustration_image_size, illustration_image_alt,
+      ai_review_json, status, source_key, artifact_key, scheduled_for, published_at, created_by, updated_by, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(id) DO UPDATE SET
       slug = excluded.slug,
       title = excluded.title,
@@ -173,6 +262,7 @@ export async function saveDraft(env, payload, actorEmail) {
       call_to_action = excluded.call_to_action,
       illustration_prompt = excluded.illustration_prompt,
       illustration_svg = excluded.illustration_svg,
+      illustration_image_alt = excluded.illustration_image_alt,
       status = excluded.status,
       source_key = excluded.source_key,
       updated_by = excluded.updated_by,
@@ -192,6 +282,11 @@ export async function saveDraft(env, payload, actorEmail) {
     meta.callToAction || null,
     meta.illustrationPrompt || null,
     meta.illustrationSvg || null,
+    existing?.illustration_image_key || null,
+    existing?.illustration_image_name || null,
+    existing?.illustration_image_type || null,
+    existing?.illustration_image_size || null,
+    meta.illustrationImageAlt || null,
     existing?.ai_review_json || null,
     'draft',
     sourceKey,
@@ -205,6 +300,87 @@ export async function saveDraft(env, payload, actorEmail) {
   ).run();
 
   return getDraft(env, draftId);
+}
+
+export async function saveDraftIllustrationImage(env, { draftId, file, alt }, actorEmail) {
+  const existing = await getDraftRow(env, draftId);
+  if (!existing) {
+    throw new Error('Draft not found');
+  }
+
+  const { contentType, size } = validateImageFile(file);
+  const key = draftIllustrationImageKey(draftId, contentType);
+  const timestamp = nowIso();
+  const safeName = String(file.name || `cover.${imageExtension(contentType)}`).slice(0, 180);
+  const safeAlt = String(alt || existing.illustration_image_alt || existing.title || '').trim().slice(0, 220);
+
+  await env.DRAFTS_BUCKET.put(key, file.stream(), {
+    httpMetadata: {
+      contentType,
+    },
+    customMetadata: {
+      draftId,
+      fileName: safeName,
+      uploadedBy: actorEmail || '',
+    },
+  });
+
+  if (existing.illustration_image_key && existing.illustration_image_key !== key) {
+    await env.DRAFTS_BUCKET.delete(existing.illustration_image_key);
+  }
+
+  await env.DB.prepare(`
+    UPDATE drafts
+    SET illustration_image_key = ?, illustration_image_name = ?, illustration_image_type = ?, illustration_image_size = ?,
+        illustration_image_alt = ?, status = ?, scheduled_for = NULL, updated_by = ?, updated_at = ?
+    WHERE id = ?
+  `).bind(
+    key,
+    safeName,
+    contentType,
+    size,
+    safeAlt,
+    'draft',
+    actorEmail,
+    timestamp,
+    draftId,
+  ).run();
+
+  return getDraft(env, draftId);
+}
+
+export async function getDraftIllustrationImageObject(env, draftId) {
+  const row = await getDraftRow(env, draftId);
+  if (!row?.illustration_image_key) {
+    return null;
+  }
+
+  const object = await env.DRAFTS_BUCKET.get(row.illustration_image_key);
+  if (!object) {
+    return null;
+  }
+
+  return {
+    object,
+    image: rowToIllustrationImage(row),
+  };
+}
+
+export async function getDraftIllustrationPublishAsset(env, draft) {
+  if (!draft?.illustrationImage?.key) {
+    return null;
+  }
+
+  const object = await env.DRAFTS_BUCKET.get(draft.illustrationImage.key);
+  if (!object) {
+    throw new Error('Uploaded illustration image not found');
+  }
+
+  return {
+    path: buildRepoIllustrationPath(draft.slug, draft.illustrationImage.contentType),
+    contentType: draft.illustrationImage.contentType,
+    content: new Uint8Array(await object.arrayBuffer()),
+  };
 }
 
 export async function saveReview(env, draftId, review, actorEmail) {
@@ -244,11 +420,12 @@ export async function approveDraft(env, payload, actorEmail) {
 
   const sourceBody = payload.body ?? await getText(env.DRAFTS_BUCKET, existing.source_key);
   const artifactKey = existing.artifact_key || draftArtifactKey(existing.id);
-  const { meta, artifact, previewHtml } = buildPublishArtifact({
+  const artifactInput = withPublishImagePath(existing, {
     ...rowToInput(existing, sourceBody),
     ...payload,
     body: sourceBody,
   });
+  const { meta, artifact, previewHtml } = buildPublishArtifact(artifactInput);
   const timestamp = nowIso();
 
   await putText(env.DRAFTS_BUCKET, existing.source_key, String(sourceBody).trim());
@@ -258,7 +435,7 @@ export async function approveDraft(env, payload, actorEmail) {
     UPDATE drafts
     SET slug = ?, title = ?, description = ?, tags_json = ?, read_time = ?, date = ?, series = ?,
         series_order = ?, series_title = ?, related_slugs_json = ?, call_to_action = ?,
-        illustration_prompt = ?, illustration_svg = ?, artifact_key = ?, status = ?, updated_by = ?, updated_at = ?
+        illustration_prompt = ?, illustration_svg = ?, illustration_image_alt = ?, artifact_key = ?, status = ?, updated_by = ?, updated_at = ?
     WHERE id = ?
   `).bind(
     meta.slug,
@@ -274,6 +451,7 @@ export async function approveDraft(env, payload, actorEmail) {
     meta.callToAction || null,
     meta.illustrationPrompt || null,
     meta.illustrationSvg || null,
+    meta.illustrationImageAlt || null,
     artifactKey,
     'ready',
     actorEmail,
