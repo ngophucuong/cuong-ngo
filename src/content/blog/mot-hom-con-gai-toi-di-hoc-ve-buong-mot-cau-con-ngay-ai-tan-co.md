@@ -11,52 +11,7 @@ relatedSlugs:
   - "diem-bat-dau-khong-phai-phan-mem"
 ---
 <figure class="article-illustration">
-<svg viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg" font-family="'Georgia', 'Times New Roman', serif">
-  <!-- nền nâu ấm -->
-  <rect width="800" height="460" fill="rgb(66,46,24)"/>
-
-  <!-- ánh sáng nhẹ phía sau điện thoại -->
-  <ellipse cx="400" cy="230" rx="230" ry="200" fill="rgba(210,185,150,0.05)"/>
-  <ellipse cx="400" cy="230" rx="150" ry="140" fill="rgba(210,185,150,0.04)"/>
-
-  <!-- thân điện thoại -->
-  <rect x="290" y="70" width="220" height="320" rx="28" ry="28"
-        fill="none" stroke="rgba(210,185,150,0.55)" stroke-width="2.5"/>
-  <!-- loa thoại -->
-  <rect x="375" y="90" width="50" height="5" rx="2.5" fill="rgba(210,185,150,0.40)"/>
-  <!-- nút home -->
-  <circle cx="400" cy="372" r="9" fill="none" stroke="rgba(210,185,150,0.40)" stroke-width="2"/>
-
-  <!-- tiêu đề màn hình -->
-  <text x="400" y="128" text-anchor="middle" fill="rgba(210,185,150,0.75)"
-        font-size="16" letter-spacing="1">Lời nhắc</text>
-  <line x1="315" y1="142" x2="485" y2="142" stroke="rgba(210,185,150,0.20)" stroke-width="1"/>
-
-  <!-- nhắc 1: uống thuốc -->
-  <circle cx="332" cy="178" r="7" fill="none" stroke="rgba(210,185,150,0.55)" stroke-width="1.8"/>
-  <!-- viên thuốc nhỏ -->
-  <rect x="329" y="175.5" width="6" height="5" rx="2.5" fill="rgba(210,185,150,0.55)"/>
-  <text x="350" y="175" fill="rgba(210,185,150,0.72)" font-size="13.5">Uống thuốc — 2 viên</text>
-  <text x="350" y="193" fill="rgba(210,185,150,0.42)" font-size="11.5">sau khi ăn · trong 2 tuần</text>
-
-  <line x1="315" y1="214" x2="485" y2="214" stroke="rgba(210,185,150,0.12)" stroke-width="1"/>
-
-  <!-- nhắc 2: bàn chải -->
-  <circle cx="332" cy="250" r="7" fill="none" stroke="rgba(210,185,150,0.55)" stroke-width="1.8"/>
-  <text x="350" y="247" fill="rgba(210,185,150,0.72)" font-size="13.5">Mua bàn chải mới</text>
-  <text x="350" y="265" fill="rgba(210,185,150,0.42)" font-size="11.5">khi nào đi siêu thị</text>
-
-  <line x1="315" y1="286" x2="485" y2="286" stroke="rgba(210,185,150,0.12)" stroke-width="1"/>
-
-  <!-- nhắc cũ kiểu báo thức thường, mờ đi -->
-  <circle cx="332" cy="322" r="7" fill="none" stroke="rgba(210,185,150,0.25)" stroke-width="1.5"/>
-  <text x="350" y="319" fill="rgba(210,185,150,0.30)" font-size="13.5">Báo thức 6:30 — đi học</text>
-  <text x="350" y="337" fill="rgba(210,185,150,0.20)" font-size="11.5">việc này, báo thức thường là đủ</text>
-
-  <!-- câu chốt bên dưới -->
-  <text x="400" y="430" text-anchor="middle" fill="rgba(210,185,150,0.50)"
-        font-size="15" font-style="italic">việc thường, để công cụ thường — chỉ cái mơ hồ mới cần đến AI</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-label=""Con ngấy AI tận cổ!""><rect width="1200" height="675" fill="#ede7da"/><circle cx="535" cy="315" r="132" fill="#3d5c4a" opacity="0.12"/><circle cx="1020" cy="540" r="188" fill="#3d5c4a" opacity="0.08"/><path d="M120 520C260 420 380 400 520 452C650 500 820 508 1080 360" stroke="#3d5c4a" stroke-width="12" fill="none" stroke-linecap="round" opacity="0.78"/><path d="M130 435H955" stroke="#5a524a" stroke-width="2" opacity="0.18"/><rect x="96" y="88" width="680" height="100" rx="18" fill="white" fill-opacity="0.42"/><text x="126" y="144" fill="#5a524a" font-family="Georgia, serif" font-size="34">&quot;Bao giờ thì xu hướng này qua đi bố nhỉ?&quot;</text></svg>
 </figure>
 
 Một hôm con gái tôi đi học về, buông một câu: "Con ngấy AI tận cổ!"
@@ -79,7 +34,7 @@ Con bé đang phản ứng với đúng cái đó. Không phải nó ghét AI. N
 
 Tôi cười, hiểu con. Rồi tôi nói: hãy bao dung cho AI một chút. Và con giúp bố giải một bài toán nhỏ nhé.
 
-Tôi bắt đầu bằng vế dễ. Trong điện thoại của chúng ta có sẵn cái báo thức. Nó quá đủ để gọi mình dậy sớm, nhắc giờ đi học, giờ đi ngủ. Những việc lặp đi lặp lại, cố định giờ giấc như thế, thì cái báo thức thường làm là tốt nhất rồi — chẳng cần đến AI làm gì cho rườm rà.
+Tôi bắt đầu bằng phần dễ. Trong điện thoại của chúng ta có sẵn cái báo thức. Nó quá đủ để gọi mình dậy sớm, nhắc giờ đi học, giờ đi ngủ. Những việc lặp đi lặp lại, cố định giờ giấc như thế, thì cái báo thức thường làm là tốt nhất rồi — chẳng cần đến AI làm gì cho rườm rà.
 
 Con gật. Phải, mấy việc đó thì cần gì AI.
 
