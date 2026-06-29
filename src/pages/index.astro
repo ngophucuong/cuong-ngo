@@ -12,11 +12,25 @@ function formatDate(date: Date) {
 ---
 <Base title="cuong.ngo">
   <div class="container">
-    <p class="tagline">Công nghệ, AI, và những thứ thật.</p>
-    <p class="intro">
-      Tôi là Ngô Phú Cường — làm phần mềm từ thời máy 386, nay chuyên chữa pain point thật cho doanh nghiệp bằng AI.
-      Trang này là nơi tôi ghi lại những gì học được — không phải để dạy, mà để nghĩ thành tiếng.
-    </p>
+    <section class="home-hero">
+      <div class="home-hero-copy">
+        <p class="tagline">Công nghệ, AI, và những thứ thật.</p>
+        <p class="intro">
+          Tôi là Ngô Phú Cường — làm phần mềm từ thời máy 386, nay chuyên chữa pain point thật cho doanh nghiệp bằng AI.
+          Trang này là nơi tôi ghi lại những gì học được — không phải để dạy, mà để nghĩ thành tiếng.
+        </p>
+      </div>
+
+      <figure class="home-hero-figure">
+        <img
+          src="/images/chan-dung.png"
+          alt="Chân dung Ngô Phú Cường"
+          class="home-portrait"
+          width="900"
+          height="1200"
+        />
+      </figure>
+    </section>
 
     <ul class="post-list">
       {posts.map((post) => (
