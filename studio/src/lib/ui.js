@@ -515,11 +515,10 @@ export function renderStudioApp() {
           <div class="editor-head">
             <div>
               <h2 id="step-title">Noi dung</h2>
-              <p class="field-hint" id="step-subtitle">Viet title va markdown truoc, cac truong khac di sau.</p>
+              <p class="field-hint" id="step-subtitle">Dan bai vao day, sau do de AI chuan bi phan con lai.</p>
             </div>
             <div class="utility-row">
-              <button class="ghost" id="review-btn" type="button">AI review</button>
-              <button class="ghost" id="illustration-btn" type="button">AI SVG</button>
+              <button class="primary" id="prepare-btn" type="button">AI chuan bi bai</button>
             </div>
           </div>
 
@@ -554,10 +553,11 @@ export function renderStudioApp() {
               </label>
             </div>
             <div class="step-actions">
-              <span class="field-hint">Draft se duoc luu truoc khi chuyen sang buoc ke tiep.</span>
+              <span class="field-hint">Chi can dan noi dung. AI se chuan bi metadata, lien ket va minh hoa.</span>
               <div class="right">
                 <button class="ghost" id="save-write-btn" type="button">Luu</button>
-                <button class="primary" data-next-step="meta" type="button">Tiep: Bien tap</button>
+                <button class="primary" id="prepare-write-btn" type="button">AI chuan bi bai</button>
+                <button class="ghost" data-next-step="meta" type="button">Chinh tay</button>
               </div>
             </div>
           </section>
@@ -653,7 +653,7 @@ export function renderStudioApp() {
         <div class="panel-inner stack">
           <div>
             <h2>Preview</h2>
-            <p class="field-hint">Preview cap nhat sau moi lan luu, review, tao SVG hoac approve.</p>
+            <p class="field-hint">Preview cap nhat sau khi AI chuan bi, luu, tao SVG hoac approve.</p>
           </div>
           <div class="preview-shell" id="preview-shell">
             <p class="empty-state">Chon hoac tao draft de xem preview.</p>
@@ -933,6 +933,22 @@ export function renderStudioApp() {
       setStep(step);
     }
 
+    async function handlePrepare() {
+      const draft = await ensureCurrentDraft();
+      setStatus('AI dang chuan bi metadata, lien ket va minh hoa...', '');
+      const payload = await api('/api/drafts/' + encodeURIComponent(draft.id) + '/prepare', {
+        method: 'POST', body: JSON.stringify(readForm())
+      });
+      state.currentDraft = payload.draft;
+      fillForm(payload.draft);
+      renderReview(payload.review);
+      renderPreview(payload.draft.previewHtml || payload.previewHtml);
+      await loadDashboard();
+      setStep('publish');
+      setStatus('AI da chuan bi bai. Neu can sua, vao Bien tap hoac Minh hoa; neu on, approve ready.', 'success');
+      return payload.draft;
+    }
+
     async function handleReview() {
       const draft = await ensureCurrentDraft();
       setStatus('Dang chay AI review...', '');
@@ -1003,9 +1019,9 @@ export function renderStudioApp() {
     wireClick('save-write-btn', saveCurrent);
     wireClick('save-meta-btn', saveCurrent);
     wireClick('save-illustration-btn', saveCurrent);
-    wireClick('review-btn', handleReview);
+    wireClick('prepare-btn', handlePrepare);
+    wireClick('prepare-write-btn', handlePrepare);
     wireClick('review-inline-btn', handleReview);
-    wireClick('illustration-btn', handleIllustration);
     wireClick('illustration-inline-btn', handleIllustration);
     wireClick('approve-btn', handleApprove);
     wireClick('publish-now-btn', function () { return handlePublish('now'); });

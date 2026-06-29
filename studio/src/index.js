@@ -180,6 +180,73 @@ async function handleIllustration(request, env) {
   });
 }
 
+
+function joinSuggestedList(value) {
+  return Array.isArray(value) ? value.map((item) => String(item).trim()).filter(Boolean).join(', ') : '';
+}
+
+function useSuggestion(current, suggested) {
+  const currentText = String(current || '').trim();
+  if (currentText) {
+    return currentText;
+  }
+  return String(suggested || '').trim();
+}
+
+function mergePreparedInput(payload, review) {
+  return {
+    ...payload,
+    title: useSuggestion(payload.title, review.title),
+    description: useSuggestion(payload.description, review.description),
+    tags: useSuggestion(payload.tags, joinSuggestedList(review.tags)),
+    readTime: useSuggestion(payload.readTime, review.readTime),
+    series: useSuggestion(payload.series, review.series),
+    seriesOrder: useSuggestion(payload.seriesOrder, review.seriesOrder),
+    seriesTitle: useSuggestion(payload.seriesTitle, review.seriesTitle),
+    relatedSlugs: useSuggestion(payload.relatedSlugs, joinSuggestedList(review.relatedSlugs)),
+    callToAction: useSuggestion(payload.callToAction, review.callToAction),
+    illustrationPrompt: useSuggestion(payload.illustrationPrompt, review.visualPrompt),
+  };
+}
+
+async function handlePrepare(request, env, draftId) {
+  const session = requireSession(request);
+  const payload = await readJson(request);
+  if (!payload) {
+    return error('Invalid JSON body', 400);
+  }
+
+  let publishedSlugs = [];
+  try {
+    publishedSlugs = await listPublishedSlugs(env);
+  } catch {
+    publishedSlugs = [];
+  }
+
+  const review = await runEditorialReview(env, payload, publishedSlugs);
+  await saveReview(env, draftId, review, session.email);
+
+  const preparedInput = mergePreparedInput(payload, review);
+  const illustrationSvg = String(preparedInput.illustrationSvg || '').trim()
+    || await generateIllustrationSvg(env, preparedInput);
+  const draft = await saveDraft(env, {
+    ...preparedInput,
+    id: draftId,
+    illustrationSvg,
+  }, session.email);
+
+  return json({
+    ok: true,
+    review,
+    illustrationSvg,
+    draft,
+    previewHtml: draft.previewHtml || renderPreview({
+      ...preparedInput,
+      illustrationSvg,
+    }),
+  });
+}
+
 async function handleApprove(request, env, draftId) {
   const session = requireSession(request);
   const payload = await readJson(request);
@@ -273,6 +340,10 @@ export default {
       const draftRoute = parseDraftRoute(pathname);
       if (draftRoute?.id && !draftRoute.action && request.method === 'GET') {
         return await handleDraftDetail(request, env, draftRoute.id);
+      }
+
+      if (draftRoute?.id && draftRoute.action === 'prepare' && request.method === 'POST') {
+        return await handlePrepare(request, env, draftRoute.id);
       }
 
       if (draftRoute?.id && draftRoute.action === 'review' && request.method === 'POST') {
