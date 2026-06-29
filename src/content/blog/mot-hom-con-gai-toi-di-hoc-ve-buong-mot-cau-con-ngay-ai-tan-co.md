@@ -1,7 +1,7 @@
 ---
 title: "\"Con ngấy AI tận cổ!\""
 date: 2026-06-29
-description: "\"Con ngấy AI tận cổ!\""
+description: "Con gái tôi phát ngán vì AI ở khắp mọi nơi. Cô bé không sai. Và từ một bài toán nhỏ về chiếc điện thoại, hai bố con tìm ra ranh giới: việc nào để công cụ thường làm, việc nào mới thật sự cần đến AI."
 tags:
   - "chuyện nhà"
   - "AI"
