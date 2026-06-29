@@ -14,6 +14,56 @@ function utf8ToBase64(text) {
   return bytesToBase64(new TextEncoder().encode(text));
 }
 
+
+function base64ToUtf8(content = '') {
+  const clean = content.replace(/\s/g, '');
+  const binary = atob(clean);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+  return new TextDecoder().decode(bytes);
+}
+
+function assertSafeSlug(slug) {
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+    throw new Error('Invalid published post slug');
+  }
+}
+
+function extractFrontmatter(markdown = '') {
+  const match = markdown.match(/^---\n([\s\S]*?)\n---/);
+  return match ? match[1] : '';
+}
+
+function readFrontmatterValue(frontmatter, key) {
+  const match = frontmatter.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
+  if (!match) {
+    return '';
+  }
+
+  const value = match[1].trim();
+  if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value.slice(1, -1);
+    }
+  }
+
+  return value;
+}
+
+function summarizeMarkdown(slug, markdown) {
+  const frontmatter = extractFrontmatter(markdown);
+  return {
+    slug,
+    title: readFrontmatterValue(frontmatter, 'title') || slug,
+    date: readFrontmatterValue(frontmatter, 'date'),
+    description: readFrontmatterValue(frontmatter, 'description'),
+  };
+}
+
 function githubHeaders(token) {
   return {
     authorization: `Bearer ${token}`,
@@ -120,5 +170,68 @@ export async function publishArtifactToGitHub(env, { slug, artifact, title, acto
     path: targetPath,
     commitSha: result.commit?.sha || null,
     url: result.content?.html_url || null,
+  };
+}
+
+
+export async function listPublishedPosts(env) {
+  const items = await githubRequest(
+    env,
+    `/repos/${env.GITHUB_REPOSITORY}/contents/${encodeContentPath(env.GITHUB_CONTENT_DIR)}?ref=${encodeURIComponent(env.GITHUB_BRANCH)}`,
+  );
+
+  const files = items.filter((item) => item.type === 'file' && item.name.endsWith('.md'));
+  const posts = await Promise.all(files.map(async (item) => {
+    const file = await getRepoFile(env, `${env.GITHUB_CONTENT_DIR}/${item.name}`);
+    const markdown = file?.content ? base64ToUtf8(file.content) : '';
+    const slug = item.name.replace(/\.md$/, '');
+    const summary = summarizeMarkdown(slug, markdown);
+
+    return {
+      ...summary,
+      path: `${env.GITHUB_CONTENT_DIR}/${item.name}`,
+      sha: file?.sha || item.sha || '',
+      htmlUrl: file?.html_url || item.html_url || '',
+    };
+  }));
+
+  return posts.sort((a, b) => {
+    const dateOrder = String(b.date || '').localeCompare(String(a.date || ''));
+    return dateOrder || String(a.title || a.slug).localeCompare(String(b.title || b.slug));
+  });
+}
+
+export async function recallPublishedPostFromGitHub(env, { slug, actorEmail }) {
+  assertSafeSlug(slug);
+  const targetPath = buildTargetPath(env, slug);
+  const current = await getRepoFile(env, targetPath);
+  if (!current?.sha) {
+    throw new Error('Published post not found');
+  }
+
+  const result = await githubRequest(
+    env,
+    `/repos/${env.GITHUB_REPOSITORY}/contents/${encodeContentPath(targetPath)}`,
+    {
+      method: 'DELETE',
+      body: JSON.stringify({
+        message: `recall(blog): ${slug}`,
+        sha: current.sha,
+        branch: env.GITHUB_BRANCH,
+        committer: {
+          name: 'Cuong Ngo Studio',
+          email: actorEmail || 'info@cuong.ngo',
+        },
+        author: {
+          name: 'Cuong Ngo Studio',
+          email: actorEmail || 'info@cuong.ngo',
+        },
+      }),
+    },
+  );
+
+  return {
+    path: targetPath,
+    commitSha: result.commit?.sha || null,
   };
 }

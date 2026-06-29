@@ -294,11 +294,11 @@ export async function createPublishJob(env, { draftId, mode, publishAt, actorEma
   }
 
   if (draft.status !== 'ready') {
-    throw new Error('Draft phai o trang thai ready truoc khi publish');
+    throw new Error('Draft phải ở trạng thái ready trước khi publish');
   }
 
   if (!draft.artifact_key) {
-    throw new Error('Draft chua duoc approve');
+    throw new Error('Draft chưa được approve');
   }
 
   const timestamp = nowIso();

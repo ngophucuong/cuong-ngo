@@ -4,8 +4,10 @@ export function renderStudioApp() {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cuong Ngo Studio</title>
+  <title>Cường Ngô Studio</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
+
     :root {
       --bg: #f5f7f8;
       --panel: #ffffff;
@@ -29,7 +31,7 @@ export function renderStudioApp() {
       min-height: 100vh;
       background: var(--bg);
       color: var(--ink);
-      font-family: Aptos, "SF Pro Text", "Segoe UI", sans-serif;
+      font-family: "Be Vietnam Pro", Aptos, "SF Pro Text", "Segoe UI", sans-serif;
       font-size: 15px;
       line-height: 1.45;
     }
@@ -190,7 +192,7 @@ export function renderStudioApp() {
       line-height: 1.4;
     }
 
-    .draft-list, .top-posts, .schedule-list {
+    .draft-list, .published-list, .top-posts, .schedule-list {
       list-style: none;
       margin: 0;
       padding: 0;
@@ -198,7 +200,7 @@ export function renderStudioApp() {
       gap: 0.45rem;
     }
 
-    .draft-list button {
+    .draft-list button, .published-list button {
       width: 100%;
       text-align: left;
       border: 1px solid transparent;
@@ -211,7 +213,7 @@ export function renderStudioApp() {
       background: var(--accent-soft);
     }
 
-    .draft-item-title, .top-posts strong, .schedule-list strong {
+    .draft-item-title, .published-item-title, .top-posts strong, .schedule-list strong {
       display: block;
       color: var(--ink);
       font-size: 0.9rem;
@@ -219,11 +221,27 @@ export function renderStudioApp() {
       overflow-wrap: anywhere;
     }
 
-    .top-posts li, .schedule-list li {
+    .published-list li, .top-posts li, .schedule-list li {
       border: 1px solid var(--line);
       border-radius: var(--radius);
       background: var(--panel-soft);
       padding: 0.7rem;
+    }
+
+
+    .published-list li {
+      display: grid;
+      gap: 0.55rem;
+    }
+
+    .published-list button {
+      width: max-content;
+      min-height: 32px;
+      padding: 0.38rem 0.6rem;
+      background: #fff7ed;
+      border-color: #fed7aa;
+      color: var(--warning);
+      font-size: 0.78rem;
     }
 
     .editor-head {
@@ -464,8 +482,8 @@ export function renderStudioApp() {
     <header class="studio-header">
       <div class="studio-header-inner">
         <div class="studio-brand">
-          <h1>Cuong Ngo Studio</h1>
-          <p class="status-line" id="status-line">Dang tai du lieu studio...</p>
+          <h1>Cường Ngô Studio</h1>
+          <p class="status-line" id="status-line">Đang tải dữ liệu studio...</p>
         </div>
         <div class="session-pill">Access session: <strong id="session-email">...</strong></div>
       </div>
@@ -476,12 +494,12 @@ export function renderStudioApp() {
         <section class="panel">
           <div class="panel-inner stack">
             <div>
-              <h2>Tong quan</h2>
+              <h2>Tổng quan</h2>
               <div class="stats-grid" id="summary-grid"></div>
             </div>
             <div class="toolbar">
-              <button class="ghost" id="new-draft-btn" type="button">Draft moi</button>
-              <button class="primary" id="save-btn" type="button">Luu</button>
+              <button class="ghost" id="new-draft-btn" type="button">Draft mới</button>
+              <button class="primary" id="save-btn" type="button">Lưu</button>
             </div>
           </div>
         </section>
@@ -489,22 +507,33 @@ export function renderStudioApp() {
         <section class="panel">
           <div class="panel-inner stack">
             <label for="draft-search">Draft
-              <input id="draft-search" type="search" placeholder="Tim title hoac slug" />
+              <input id="draft-search" type="search" placeholder="Tìm title hoặc slug" />
             </label>
             <ul class="draft-list" id="draft-list"></ul>
           </div>
         </section>
 
+
+        <section class="panel">
+          <div class="panel-inner stack">
+            <div>
+              <h2>Bài đã đăng</h2>
+              <p class="field-hint">Thu hồi sẽ commit xoá file markdown trên GitHub.</p>
+            </div>
+            <ul class="published-list" id="published-list"></ul>
+          </div>
+        </section>
+
         <section class="panel">
           <div class="panel-inner mini-stack">
-            <h2>Top bai 30 ngay</h2>
+            <h2>Top bài 30 ngày</h2>
             <ul class="top-posts" id="top-posts"></ul>
           </div>
         </section>
 
         <section class="panel">
           <div class="panel-inner mini-stack">
-            <h2>Lich dang</h2>
+            <h2>Lịch đăng</h2>
             <ul class="schedule-list" id="scheduled-list"></ul>
           </div>
         </section>
@@ -514,11 +543,11 @@ export function renderStudioApp() {
         <div class="panel-inner">
           <div class="editor-head">
             <div>
-              <h2 id="step-title">Noi dung</h2>
-              <p class="field-hint" id="step-subtitle">Dan bai vao day, sau do de AI chuan bi phan con lai.</p>
+              <h2 id="step-title">Nội dung</h2>
+              <p class="field-hint" id="step-subtitle">Dán bài vào đây, sau đó để AI chuẩn bị phần còn lại.</p>
             </div>
             <div class="utility-row">
-              <button class="primary" id="prepare-btn" type="button">AI chuan bi bai</button>
+              <button class="primary" id="prepare-btn" type="button">AI chuẩn bị bài</button>
             </div>
           </div>
 
@@ -527,57 +556,57 @@ export function renderStudioApp() {
           <nav class="stepper" aria-label="Publish workflow">
             <button class="step-tab" type="button" data-step-target="write" aria-selected="true">
               <span class="step-index">1</span>
-              <span class="step-label">Noi dung</span>
+              <span class="step-label">Nội dung</span>
             </button>
             <button class="step-tab" type="button" data-step-target="meta" aria-selected="false">
               <span class="step-index">2</span>
-              <span class="step-label">Bien tap</span>
+              <span class="step-label">Biên tập</span>
             </button>
             <button class="step-tab" type="button" data-step-target="illustration" aria-selected="false">
               <span class="step-index">3</span>
-              <span class="step-label">Minh hoa</span>
+              <span class="step-label">Minh hoạ</span>
             </button>
             <button class="step-tab" type="button" data-step-target="publish" aria-selected="false">
               <span class="step-index">4</span>
-              <span class="step-label">Duyet dang</span>
+              <span class="step-label">Duyệt đăng</span>
             </button>
           </nav>
 
           <section class="step-panel" data-step-panel="write">
             <div class="field-grid">
-              <label class="full-span">Tieu de
-                <input id="title" type="text" placeholder="Tieu de bai viet" />
+              <label class="full-span">Tiêu đề
+                <input id="title" type="text" placeholder="Tiêu đề bài viết" />
               </label>
-              <label class="full-span">Noi dung Markdown
-                <textarea id="body" placeholder="Dan bai viet Markdown vao day"></textarea>
+              <label class="full-span">Nội dung Markdown
+                <textarea id="body" placeholder="Dán bài viết Markdown vào đây"></textarea>
               </label>
             </div>
             <div class="step-actions">
-              <span class="field-hint">Chi can dan noi dung. AI se chuan bi metadata, lien ket va minh hoa.</span>
+              <span class="field-hint">Chỉ cần dán nội dung. AI sẽ chuẩn bị metadata, liên kết và minh hoạ.</span>
               <div class="right">
-                <button class="ghost" id="save-write-btn" type="button">Luu</button>
-                <button class="primary" id="prepare-write-btn" type="button">AI chuan bi bai</button>
-                <button class="ghost" data-next-step="meta" type="button">Chinh tay</button>
+                <button class="ghost" id="save-write-btn" type="button">Lưu</button>
+                <button class="primary" id="prepare-write-btn" type="button">AI chuẩn bị bài</button>
+                <button class="ghost" data-next-step="meta" type="button">Chỉnh tay</button>
               </div>
             </div>
           </section>
 
           <section class="step-panel" data-step-panel="meta" hidden>
             <div class="field-grid">
-              <label class="full-span">Mo ta ngan
+              <label class="full-span">Mô tả ngắn
                 <textarea id="description" rows="3" placeholder="Standfirst / description"></textarea>
               </label>
               <label>Slug
                 <input id="slug" type="text" placeholder="tu-dong-neu-bo-trong" />
               </label>
-              <label>Ngay dang
+              <label>Ngày đăng
                 <input id="date" type="date" />
               </label>
-              <label>The
-                <input id="tags" type="text" placeholder="AI, Van hanh, Nghe" />
+              <label>Thẻ
+                <input id="tags" type="text" placeholder="AI, Vận hành, Nghề" />
               </label>
               <label>Read time
-                <input id="read-time" type="text" placeholder="~7 phut doc" />
+                <input id="read-time" type="text" placeholder="~7 phút đọc" />
               </label>
               <label>Series key
                 <input id="series" type="text" placeholder="phan-mem-thich-ung" />
@@ -586,39 +615,39 @@ export function renderStudioApp() {
                 <input id="series-order" type="number" min="1" step="1" placeholder="1" />
               </label>
               <label class="full-span">Series title
-                <input id="series-title" type="text" placeholder="Tieu de tuyen bai" />
+                <input id="series-title" type="text" placeholder="Tiêu đề tuyến bài" />
               </label>
               <label class="full-span">Related slugs
                 <input id="related-slugs" type="text" placeholder="slug-1, slug-2" />
               </label>
               <label class="full-span">Call to action
-                <textarea id="call-to-action" rows="3" placeholder="Canh huong ket noi cuoi bai"></textarea>
+                <textarea id="call-to-action" rows="3" placeholder="Lời kết nối cuối bài"></textarea>
               </label>
             </div>
             <div class="step-actions">
-              <button class="ghost" data-prev-step="write" type="button">Quay lai</button>
+              <button class="ghost" data-prev-step="write" type="button">Quay lại</button>
               <div class="right">
-                <button class="ghost" id="save-meta-btn" type="button">Luu</button>
-                <button class="primary" data-next-step="illustration" type="button">Tiep: Minh hoa</button>
+                <button class="ghost" id="save-meta-btn" type="button">Lưu</button>
+                <button class="primary" data-next-step="illustration" type="button">Tiếp: Minh hoạ</button>
               </div>
             </div>
           </section>
 
           <section class="step-panel" data-step-panel="illustration" hidden>
             <div class="field-grid">
-              <label class="full-span">Prompt minh hoa
-                <textarea id="illustration-prompt" rows="4" placeholder="Mo ta y tuong hinh minh hoa de AI doi sang SVG"></textarea>
+              <label class="full-span">Prompt minh hoạ
+                <textarea id="illustration-prompt" rows="4" placeholder="Mô tả ý tưởng hình minh hoạ để AI đổi sang SVG"></textarea>
               </label>
-              <label class="full-span">SVG minh hoa
+              <label class="full-span">SVG minh hoạ
                 <textarea id="illustration-svg" placeholder="<svg ...>"></textarea>
               </label>
             </div>
             <div class="step-actions">
-              <button class="ghost" data-prev-step="meta" type="button">Quay lai</button>
+              <button class="ghost" data-prev-step="meta" type="button">Quay lại</button>
               <div class="right">
-                <button class="secondary" id="illustration-inline-btn" type="button">Tao SVG</button>
-                <button class="ghost" id="save-illustration-btn" type="button">Luu</button>
-                <button class="primary" data-next-step="publish" type="button">Tiep: Duyet dang</button>
+                <button class="secondary" id="illustration-inline-btn" type="button">Tạo SVG</button>
+                <button class="ghost" id="save-illustration-btn" type="button">Lưu</button>
+                <button class="primary" data-next-step="publish" type="button">Tiếp: Duyệt đăng</button>
               </div>
             </div>
           </section>
@@ -626,24 +655,24 @@ export function renderStudioApp() {
           <section class="step-panel" data-step-panel="publish" hidden>
             <div class="publish-grid">
               <div class="publish-block">
-                <h3>Duyet noi dung</h3>
-                <p class="field-hint">Approve tao artifact markdown cuoi cung trong R2. Chi artifact da approve moi duoc publish.</p>
-                <button class="secondary" id="review-inline-btn" type="button">Chay AI review</button>
-                <button class="primary" id="approve-btn" type="button">Approve ready</button>
+                <h3>Duyệt nội dung</h3>
+                <p class="field-hint">Approve tạo artifact markdown cuối cùng trong R2. Chỉ artifact đã approve mới được publish.</p>
+                <button class="secondary" id="review-inline-btn" type="button">Chạy AI review</button>
+                <button class="primary" id="approve-btn" type="button">Duyệt ready</button>
               </div>
               <div class="publish-block">
-                <h3>Dang bai</h3>
-                <p class="field-hint">Publish now tao workflow job va commit vao GitHub bang token cua Worker.</p>
-                <button class="warn" id="publish-now-btn" type="button">Publish now</button>
-                <label>Schedule publish
+                <h3>Đăng bài</h3>
+                <p class="field-hint">Publish now tạo workflow job và commit vào GitHub bằng token của Worker.</p>
+                <button class="warn" id="publish-now-btn" type="button">Đăng ngay</button>
+                <label>Lịch đăng
                   <input id="publish-at" type="datetime-local" />
                 </label>
-                <button class="ghost" id="schedule-btn" type="button">Dat lich dang</button>
+                <button class="ghost" id="schedule-btn" type="button">Đặt lịch đăng</button>
               </div>
             </div>
             <div class="step-actions">
-              <button class="ghost" data-prev-step="illustration" type="button">Quay lai</button>
-              <span class="field-hint">Trang thai ready/scheduled/published se hien trong danh sach draft.</span>
+              <button class="ghost" data-prev-step="illustration" type="button">Quay lại</button>
+              <span class="field-hint">Trạng thái ready/scheduled/published sẽ hiện trong danh sách draft.</span>
             </div>
           </section>
         </div>
@@ -653,14 +682,14 @@ export function renderStudioApp() {
         <div class="panel-inner stack">
           <div>
             <h2>Preview</h2>
-            <p class="field-hint">Preview cap nhat sau khi AI chuan bi, luu, tao SVG hoac approve.</p>
+            <p class="field-hint">Preview cập nhật sau khi AI chuẩn bị, lưu, tạo SVG hoặc approve.</p>
           </div>
           <div class="preview-shell" id="preview-shell">
-            <p class="empty-state">Chon hoac tao draft de xem preview.</p>
+            <p class="empty-state">Chọn hoặc tạo draft để xem preview.</p>
           </div>
           <div class="mini-stack">
             <h2>AI notes</h2>
-            <div class="review-box" id="review-output">Chua co review AI.</div>
+            <div class="review-box" id="review-output">Chưa có review AI.</div>
           </div>
         </div>
       </aside>
@@ -669,15 +698,16 @@ export function renderStudioApp() {
 
   <script>
     const stepMeta = {
-      write: ['Noi dung', 'Viet title va markdown truoc, cac truong khac di sau.'],
-      meta: ['Bien tap', 'Mo ta, slug, tag, tuyen bai va lien ket lien quan.'],
-      illustration: ['Minh hoa', 'Tao hoac chinh SVG truoc khi dua vao artifact publish.'],
-      publish: ['Duyet dang', 'Review, approve, publish ngay hoac dat lich.']
+      write: ['Nội dung', 'Viết title và markdown trước, các trường khác đi sau.'],
+      meta: ['Biên tập', 'Mô tả, slug, tag, tuyến bài và liên kết liên quan.'],
+      illustration: ['Minh hoạ', 'Tạo hoặc chỉnh SVG trước khi đưa vào artifact publish.'],
+      publish: ['Duyệt đăng', 'Review, approve, publish ngay hoặc đặt lịch.']
     };
 
     const state = {
       dashboard: null,
       drafts: [],
+      publishedPosts: [],
       currentId: '',
       currentDraft: null,
       activeStep: 'write'
@@ -690,6 +720,7 @@ export function renderStudioApp() {
       topPosts: document.getElementById('top-posts'),
       scheduled: document.getElementById('scheduled-list'),
       draftList: document.getElementById('draft-list'),
+      publishedList: document.getElementById('published-list'),
       search: document.getElementById('draft-search'),
       preview: document.getElementById('preview-shell'),
       review: document.getElementById('review-output'),
@@ -805,15 +836,15 @@ export function renderStudioApp() {
       renderDraftList();
       renderPreview('');
       renderReview(null);
-      setStatus('Dang tao draft moi. Viet noi dung roi bam Tiep.', '');
+      setStatus('Đang tạo draft mới. Viết nội dung rồi bấm Tiếp.', '');
     }
 
     function renderReview(review) {
-      els.review.textContent = review ? JSON.stringify(review, null, 2) : 'Chua co review AI.';
+      els.review.textContent = review ? JSON.stringify(review, null, 2) : 'Chưa có review AI.';
     }
 
     function renderPreview(previewHtml) {
-      els.preview.innerHTML = previewHtml || '<p class="empty-state">Chon hoac tao draft de xem preview.</p>';
+      els.preview.innerHTML = previewHtml || '<p class="empty-state">Chọn hoặc tạo draft để xem preview.</p>';
     }
 
     function renderSummary() {
@@ -832,14 +863,14 @@ export function renderStudioApp() {
             return '<li><strong>' + escapeHtml(post.title || post.slug) + '</strong><small>' +
               escapeHtml(post.slug) + ' · ' + post.views + ' views · ' + post.readers + ' readers</small></li>';
           }).join('')
-        : '<li><small>Chua co du lieu doc bai. Beacon se do tu blog public.</small></li>';
+        : '<li><small>Chưa có dữ liệu đọc bài. Beacon sẽ đo từ blog public.</small></li>';
 
       const scheduled = state.dashboard && state.dashboard.scheduled ? state.dashboard.scheduled : [];
       els.scheduled.innerHTML = scheduled.length
         ? scheduled.map(function (job) {
             return '<li><strong>' + escapeHtml(job.slug) + '</strong><small>' + escapeHtml(formatDateTime(job.publishAt)) + '</small></li>';
           }).join('')
-        : '<li><small>Chua co bai nao dang xep lich.</small></li>';
+        : '<li><small>Chưa có bài nào đang xếp lịch.</small></li>';
     }
 
     function renderDraftList() {
@@ -852,13 +883,26 @@ export function renderStudioApp() {
       els.draftList.innerHTML = drafts.length
         ? drafts.map(function (draft) {
             const active = draft.id === state.currentId ? 'true' : 'false';
-            const title = escapeHtml(draft.title || draft.slug || 'Ban nhap chua dat ten');
+            const title = escapeHtml(draft.title || draft.slug || 'Bản nháp chưa đặt tên');
             const meta = escapeHtml((draft.status || 'draft') + ' · ' + formatDateTime(draft.updatedAt));
             return '<li><button type="button" data-draft-id="' + escapeHtml(draft.id) + '" data-active="' + active + '">' +
               '<span class="draft-item-title">' + title + '</span>' +
               '<span class="draft-item-meta">' + meta + '</span></button></li>';
           }).join('')
-        : '<li><small>Chua co draft nao.</small></li>';
+        : '<li><small>Chưa có draft nào.</small></li>';
+    }
+
+    function renderPublishedList() {
+      if (!els.publishedList) return;
+      els.publishedList.innerHTML = state.publishedPosts.length
+        ? state.publishedPosts.map(function (post) {
+            const title = escapeHtml(post.title || post.slug);
+            const meta = escapeHtml((post.date || 'chưa rõ ngày') + ' · ' + post.slug);
+            return '<li><div><span class="published-item-title">' + title + '</span>' +
+              '<span class="draft-item-meta">' + meta + '</span></div>' +
+              '<button type="button" data-recall-slug="' + escapeHtml(post.slug) + '">Thu hồi</button></li>';
+          }).join('')
+        : '<li><small>Chưa tải được danh sách bài đã đăng.</small></li>';
     }
 
     function applyReview(review) {
@@ -876,7 +920,7 @@ export function renderStudioApp() {
     }
 
     function formatDateTime(value) {
-      if (!value) return 'chua ro';
+      if (!value) return 'chưa rõ';
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return String(value);
       return date.toLocaleString('vi-VN', {
@@ -897,6 +941,32 @@ export function renderStudioApp() {
       renderDraftList();
     }
 
+
+    async function loadPublishedPosts() {
+      if (!els.publishedList) return;
+      els.publishedList.innerHTML = '<li><small>Đang tải bài đã đăng...</small></li>';
+      try {
+        const payload = await api('/api/published');
+        state.publishedPosts = payload.posts || [];
+        renderPublishedList();
+      } catch (error) {
+        state.publishedPosts = [];
+        els.publishedList.innerHTML = '<li><small>Không tải được danh sách bài đã đăng: ' + escapeHtml(error.message || 'lỗi không rõ') + '</small></li>';
+      }
+    }
+
+    async function handleRecallPublished(slug) {
+      if (!slug) return;
+      const ok = window.confirm('Thu hồi bài "' + slug + '"? Việc này sẽ commit xoá file markdown trên GitHub.');
+      if (!ok) return;
+
+      setStatus('Đang thu hồi bài ' + slug + '...', '');
+      const payload = await api('/api/published/' + encodeURIComponent(slug) + '/recall', { method: 'POST' });
+      await loadPublishedPosts();
+      await loadDashboard();
+      setStatus(payload.message || 'Đã thu hồi bài.', 'success');
+    }
+
     async function loadDraft(id) {
       const payload = await api('/api/drafts/' + encodeURIComponent(id));
       state.currentId = payload.draft.id;
@@ -906,12 +976,12 @@ export function renderStudioApp() {
       renderPreview(payload.draft.previewHtml);
       renderDraftList();
       setStep('write');
-      setStatus('Da mo draft "' + (payload.draft.title || payload.draft.slug) + '".', 'success');
+      setStatus('Đã mở draft "' + (payload.draft.title || payload.draft.slug) + '".', 'success');
       return payload.draft;
     }
 
     async function saveCurrent() {
-      setStatus('Dang luu draft...', '');
+      setStatus('Đang lưu draft...', '');
       const payload = await api('/api/drafts', { method: 'POST', body: JSON.stringify(readForm()) });
       state.currentId = payload.draft.id;
       state.currentDraft = payload.draft;
@@ -919,12 +989,12 @@ export function renderStudioApp() {
       renderPreview(payload.draft.previewHtml);
       renderReview(payload.draft.aiReview);
       await loadDashboard();
-      setStatus('Da luu draft.', 'success');
+      setStatus('Đã lưu draft.', 'success');
       return payload.draft;
     }
 
     async function ensureCurrentDraft() {
-      if (!els.form.body.value.trim()) throw new Error('Can co noi dung Markdown truoc.');
+      if (!els.form.body.value.trim()) throw new Error('Cần có nội dung Markdown trước.');
       return saveCurrent();
     }
 
@@ -945,37 +1015,37 @@ export function renderStudioApp() {
       renderPreview(payload.draft.previewHtml || payload.previewHtml);
       await loadDashboard();
       setStep('publish');
-      setStatus('AI da chuan bi bai. Neu can sua, vao Bien tap hoac Minh hoa; neu on, approve ready.', 'success');
+      setStatus('AI đã chuẩn bị bài. Nếu cần sửa, vào Biên tập hoặc Minh hoạ; nếu ổn, approve ready.', 'success');
       return payload.draft;
     }
 
     async function handleReview() {
       const draft = await ensureCurrentDraft();
-      setStatus('Dang chay AI review...', '');
+      setStatus('Đang chạy AI review...', '');
       const payload = await api('/api/drafts/' + encodeURIComponent(draft.id) + '/review', {
         method: 'POST', body: JSON.stringify(readForm())
       });
       renderReview(payload.review);
       applyReview(payload.review);
       setStep('meta');
-      setStatus('AI da tra ve goi y. Ban xem lai metadata truoc khi approve.', 'success');
+      setStatus('AI đã trả về gợi ý. Bạn xem lại metadata trước khi approve.', 'success');
     }
 
     async function handleIllustration() {
       const draft = await ensureCurrentDraft();
-      setStatus('Dang tao SVG minh hoa...', '');
+      setStatus('Đang tạo SVG minh hoạ...', '');
       const payload = await api('/api/drafts/' + encodeURIComponent(draft.id) + '/illustration', {
         method: 'POST', body: JSON.stringify(readForm())
       });
       els.form.illustrationSvg.value = payload.illustrationSvg || '';
       renderPreview(payload.previewHtml);
       setStep('illustration');
-      setStatus('Da tao SVG minh hoa. Ban co the chinh tay neu can.', 'success');
+      setStatus('Đã tạo SVG minh hoạ. Bạn có thể chỉnh tay nếu cần.', 'success');
     }
 
     async function handleApprove() {
       const draft = await ensureCurrentDraft();
-      setStatus('Dang dong artifact publish-ready...', '');
+      setStatus('Đang đóng artifact publish-ready...', '');
       const payload = await api('/api/drafts/' + encodeURIComponent(draft.id) + '/approve', {
         method: 'POST', body: JSON.stringify(readForm())
       });
@@ -985,18 +1055,18 @@ export function renderStudioApp() {
       renderReview(payload.draft.aiReview);
       await loadDashboard();
       setStep('publish');
-      setStatus('Draft da o trang thai ready.', 'success');
+      setStatus('Draft đã ở trạng thái ready.', 'success');
     }
 
     async function handlePublish(mode) {
       const draftId = els.form.id.value.trim();
-      if (!draftId) throw new Error('Can luu va approve draft truoc khi publish.');
+      if (!draftId) throw new Error('Cần lưu và approve draft trước khi publish.');
       const body = { mode: mode };
       if (mode === 'schedule') {
-        if (!els.publishAt.value) throw new Error('Chon thoi diem schedule.');
+        if (!els.publishAt.value) throw new Error('Chọn thời điểm schedule.');
         body.publishAt = new Date(els.publishAt.value).toISOString();
       }
-      setStatus(mode === 'now' ? 'Dang tao publish job...' : 'Dang dat lich publish...', '');
+      setStatus(mode === 'now' ? 'Đang tạo publish job...' : 'Đang đặt lịch publish...', '');
       const payload = await api('/api/drafts/' + encodeURIComponent(draftId) + '/publish', {
         method: 'POST', body: JSON.stringify(body)
       });
@@ -1048,11 +1118,21 @@ export function renderStudioApp() {
       loadDraft(button.dataset.draftId).catch(function (error) { setStatus(error.message, 'error'); });
     });
 
+
+    if (els.publishedList) {
+      els.publishedList.addEventListener('click', function (event) {
+        const button = event.target.closest('[data-recall-slug]');
+        if (!button) return;
+        handleRecallPublished(button.dataset.recallSlug).catch(function (error) { setStatus(error.message, 'error'); });
+      });
+    }
+
     (async function init() {
       try {
         setStep('write');
         await loadSession();
         await loadDashboard();
+        await loadPublishedPosts();
         if (state.drafts.length) {
           await loadDraft(state.drafts[0].id);
         } else {
@@ -1060,7 +1140,7 @@ export function renderStudioApp() {
           renderSummary();
         }
       } catch (error) {
-        setStatus(error.message || 'Khong tai duoc studio.', 'error');
+        setStatus(error.message || 'Không tải được studio.', 'error');
       }
     }());
   </script>

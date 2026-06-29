@@ -3,7 +3,7 @@ import { renderPreview } from './lib/markdown.js';
 import { renderStudioApp } from './lib/ui.js';
 import { generateIllustrationSvg, runEditorialReview } from './lib/ai.js';
 import { attachWorkflowInstance, approveDraft, createPublishJob, getDashboard, getDraft, listDrafts, recordViewEvent, saveDraft, saveReview } from './lib/storage.js';
-import { listPublishedSlugs } from './lib/github.js';
+import { listPublishedPosts, listPublishedSlugs, recallPublishedPostFromGitHub } from './lib/github.js';
 import { PublishWorkflow } from './workflows/publish-workflow.js';
 
 function getSignalsHost(env) {
@@ -52,6 +52,19 @@ function parseDraftRoute(pathname) {
 
   return {
     id: parts[2] || null,
+    action: parts[3] || null,
+  };
+}
+
+
+function parsePublishedRoute(pathname) {
+  const parts = pathname.split('/').filter(Boolean);
+  if (parts[0] !== 'api' || parts[1] !== 'published') {
+    return null;
+  }
+
+  return {
+    slug: parts[2] ? decodeURIComponent(parts[2]) : null,
     action: parts[3] || null,
   };
 }
@@ -112,6 +125,34 @@ async function handleSession(request) {
 async function handleDashboard(request, env) {
   requireSession(request);
   return json({ ok: true, dashboard: await getDashboard(env) });
+}
+
+async function handlePublishedPosts(request, env) {
+  requireSession(request);
+  if (request.method !== 'GET') {
+    return error('Method not allowed', 405);
+  }
+
+  const posts = await listPublishedPosts(env);
+  return json({ ok: true, posts });
+}
+
+async function handleRecallPublishedPost(request, env, slug) {
+  const session = requireSession(request);
+  if (request.method !== 'POST') {
+    return error('Method not allowed', 405);
+  }
+
+  const result = await recallPublishedPostFromGitHub(env, {
+    slug,
+    actorEmail: session.email,
+  });
+
+  return json({
+    ok: true,
+    message: `Đã thu hồi bài ${slug}. Cloudflare Pages sẽ cập nhật sau khi GitHub build xong.`,
+    result,
+  });
 }
 
 async function handleDrafts(request, env) {
@@ -293,8 +334,8 @@ async function handlePublish(request, env, draftId) {
   return json({
     ok: true,
     message: mode === 'schedule'
-      ? `Da dat lich publish vao ${publishAt}.`
-      : 'Publish job da duoc tao va Workflow dang chay.',
+      ? `Đã đặt lịch publish vào ${publishAt}.`
+      : 'Publish job đã được tạo và Workflow đang chạy.',
     job: {
       id: job.jobId,
       workflowInstanceId: instance.id || workflowInstanceId,
@@ -335,6 +376,15 @@ export default {
 
       if (pathname === '/api/drafts') {
         return await handleDrafts(request, env);
+      }
+
+      if (pathname === '/api/published') {
+        return await handlePublishedPosts(request, env);
+      }
+
+      const publishedRoute = parsePublishedRoute(pathname);
+      if (publishedRoute?.slug && publishedRoute.action === 'recall') {
+        return await handleRecallPublishedPost(request, env, publishedRoute.slug);
       }
 
       const draftRoute = parseDraftRoute(pathname);

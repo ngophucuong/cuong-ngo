@@ -47,10 +47,10 @@ function buildFallbackReview(draft, publishedSlugs = []) {
     seriesTitle: meta.seriesTitle || '',
     relatedSlugs,
     callToAction: meta.callToAction || '',
-    visualPrompt: meta.illustrationPrompt || `Mot minh hoa SVG toi gian cho bai "${meta.title}"`,
+    visualPrompt: meta.illustrationPrompt || `Một minh hoạ SVG tối giản cho bài "${meta.title}"`,
     editorialNotes: [
-      'Fallback review duoc dung vi AI khong tra ve JSON hop le.',
-      'Ban nen xem lai tieu de, mo ta, the va relatedSlugs truoc khi approve.',
+      'Fallback review được dùng vì AI không trả về JSON hợp lệ.',
+      'Bạn nên xem lại tiêu đề, mô tả, thẻ và relatedSlugs trước khi approve.',
     ],
     safetyFlags: [],
   };
@@ -109,7 +109,7 @@ function fallbackSvg(seedText = '', title = '') {
   const lineX = 720 + (hash % 240);
 
   return [
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-label="${title || 'Minh hoa bai viet'}">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-label="${title || 'Minh hoạ bài viết'}">`,
     `<rect width="1200" height="675" fill="${colors[0]}"/>`,
     `<circle cx="${accentX}" cy="${accentY}" r="132" fill="${colors[1]}" opacity="0.12"/>`,
     `<circle cx="1020" cy="540" r="188" fill="${colors[1]}" opacity="0.08"/>`,
@@ -137,19 +137,19 @@ export async function runEditorialReview(env, draft, publishedSlugs = []) {
   }
 
   const prompt = [
-    'Ban la bien tap vien cho mot blog cong nghe viet bang tieng Viet.',
-    'Tra ve DUY NHAT mot JSON hop le, khong markdown, khong giai thich.',
-    'JSON phai co cac khoa:',
+    'Bạn là biên tập viên cho một blog công nghệ viết bằng tiếng Việt.',
+    'Trả về DUY NHẤT một JSON hợp lệ, không markdown, không giải thích.',
+    'JSON phải có các khoá:',
     'title, description, tags, readTime, series, seriesOrder, seriesTitle, relatedSlugs, callToAction, visualPrompt, editorialNotes, safetyFlags',
-    'Rang buoc:',
-    '- description <= 180 ky tu',
-    '- tags toi da 5 muc',
-    '- relatedSlugs toi da 2 muc, chi chon tu danh sach cho san',
-    '- giu giong van tram, that, khong khoe khoang',
+    'Ràng buộc:',
+    '- description <= 180 ký tự',
+    '- tags tối đa 5 mục',
+    '- relatedSlugs tối đa 2 mục, chỉ chọn từ danh sách cho sẵn',
+    '- giữ giọng văn trầm, thật, không khoe khoang',
     '',
-    `Danh sach slug da co the tham chieu: ${publishedSlugs.join(', ') || '(chua co)'}`,
+    `Danh sách slug đã có thể tham chiếu: ${publishedSlugs.join(', ') || '(chưa có)'}`,
     '',
-    'Du lieu bai viet:',
+    'Dữ liệu bài viết:',
     JSON.stringify({
       title: draft.title || '',
       description: draft.description || '',
@@ -167,7 +167,7 @@ export async function runEditorialReview(env, draft, publishedSlugs = []) {
   try {
     const result = await env.AI.run(env.AI_REVIEW_MODEL, {
       messages: [
-        { role: 'system', content: 'Ban chi duoc tra ve JSON hop le.' },
+        { role: 'system', content: 'Bạn chỉ được trả về JSON hợp lệ.' },
         { role: 'user', content: prompt },
       ],
       temperature: 0,
@@ -194,20 +194,20 @@ export async function generateIllustrationSvg(env, draft) {
   }
 
   const prompt = [
-    'Tao mot SVG minh hoa ngang 1200x675 cho bai viet blog.',
-    'Chi tra ve duy nhat ma SVG hop le bat dau bang <svg va ket thuc bang </svg>.',
-    'Khong chen script, khong CSS ben ngoai, khong markdown fence.',
-    'Phong cach toi gian, am ap, nghiem, hop voi bai viet cong nghe va van hanh.',
-    `Tieu de: ${meta.title}`,
-    `Mo ta: ${meta.description}`,
-    `Goi y minh hoa: ${meta.illustrationPrompt || 'rut mot hinh tuong truc tiep tu tinh than bai viet'}`,
-    `Noi dung rut gon: ${meta.body.slice(0, 1800)}`,
+    'Tạo một SVG minh hoạ ngang 1200x675 cho bài viết blog.',
+    'Chỉ trả về duy nhất mã SVG hợp lệ bắt đầu bằng <svg và kết thúc bằng </svg>.',
+    'Không chèn script, không CSS bên ngoài, không markdown fence.',
+    'Phong cách tối giản, ấm áp, nghiêm, hợp với bài viết công nghệ và vận hành.',
+    `Tiêu đề: ${meta.title}`,
+    `Mô tả: ${meta.description}`,
+    `Gợi ý minh hoạ: ${meta.illustrationPrompt || 'rút một hình tượng trực tiếp từ tinh thần bài viết'}`,
+    `Nội dung rút gọn: ${meta.body.slice(0, 1800)}`,
   ].join('\n');
 
   try {
     const result = await env.AI.run(env.AI_REVIEW_MODEL, {
       messages: [
-        { role: 'system', content: 'Ban la nha thiet ke SVG. Chi tra ve ma SVG hop le.' },
+        { role: 'system', content: 'Bạn là nhà thiết kế SVG. Chỉ trả về mã SVG hợp lệ.' },
         { role: 'user', content: prompt },
       ],
       temperature: 0.2,
