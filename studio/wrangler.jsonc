@@ -2,6 +2,8 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "cuong-ngo-studio",
   "main": "src/index.js",
+  "workers_dev": false,
+  "preview_urls": false,
   "compatibility_date": "2026-06-29",
   "observability": {
     "enabled": true
@@ -10,7 +12,7 @@
     {
       "binding": "DB",
       "database_name": "cuong-ngo-studio",
-      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "database_id": "80ee25e2-aec9-4ea7-9c2c-ac3166d4f74c",
       "migrations_dir": "migrations"
     }
   ],
