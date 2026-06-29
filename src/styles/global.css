@@ -338,6 +338,9 @@ figcaption {
 .about-body h1 {
   margin-bottom: var(--space-m);
 }
+.about-name {
+  white-space: nowrap;
+}
 .about-hero {
   min-height: 18rem;
 }
@@ -555,6 +558,9 @@ figcaption {
   .about-portrait {
     width: 100%;
     max-width: 320px;
+  }
+  .about-name {
+    white-space: normal;
   }
   .article-body img,
   .article-body svg,
