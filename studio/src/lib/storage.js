@@ -1,5 +1,13 @@
 import { buildTargetPath } from './github.js';
 import { buildPublishArtifact, normalizeMetadata, renderPreview } from './markdown.js';
+import { ensureUniqueSlug } from './slug.js';
+
+// Slug có UNIQUE index trong D1. Lấy slug của các draft khác để
+// ensureUniqueSlug tự thêm hậu tố, tránh việc insert/update bị crash khi trùng.
+async function otherDraftSlugs(env, exceptId) {
+  const result = await env.DB.prepare('SELECT slug FROM drafts WHERE id != ?').bind(exceptId).all();
+  return (result.results || []).map((row) => row.slug).filter(Boolean);
+}
 
 function nowIso() {
   return new Date().toISOString();
@@ -235,6 +243,7 @@ export async function saveDraft(env, payload, actorEmail) {
   };
 
   const meta = normalizeMetadata(merged);
+  const slug = ensureUniqueSlug(meta.slug, await otherDraftSlugs(env, draftId));
   const sourceKey = existing?.source_key || draftSourceKey(draftId);
   const sourceBody = String(merged.body || '').trim();
   const timestamp = nowIso();
@@ -269,7 +278,7 @@ export async function saveDraft(env, payload, actorEmail) {
       updated_at = excluded.updated_at
   `).bind(
     draftId,
-    meta.slug,
+    slug,
     meta.title,
     meta.description,
     JSON.stringify(meta.tags),
@@ -420,9 +429,14 @@ export async function approveDraft(env, payload, actorEmail) {
 
   const sourceBody = payload.body ?? await getText(env.DRAFTS_BUCKET, existing.source_key);
   const artifactKey = existing.artifact_key || draftArtifactKey(existing.id);
+  // Chốt slug duy nhất TRƯỚC khi dựng artifact, để đường dẫn ảnh nhúng trong
+  // bài và file markdown publish luôn dùng cùng một slug.
+  const baseMeta = normalizeMetadata({ ...rowToInput(existing, sourceBody), ...payload, body: sourceBody });
+  const slug = ensureUniqueSlug(baseMeta.slug, await otherDraftSlugs(env, existing.id));
   const artifactInput = withPublishImagePath(existing, {
     ...rowToInput(existing, sourceBody),
     ...payload,
+    slug,
     body: sourceBody,
   });
   const { meta, artifact, previewHtml } = buildPublishArtifact(artifactInput);
@@ -438,7 +452,7 @@ export async function approveDraft(env, payload, actorEmail) {
         illustration_prompt = ?, illustration_svg = ?, illustration_image_alt = ?, artifact_key = ?, status = ?, updated_by = ?, updated_at = ?
     WHERE id = ?
   `).bind(
-    meta.slug,
+    slug,
     meta.title,
     meta.description,
     JSON.stringify(meta.tags),

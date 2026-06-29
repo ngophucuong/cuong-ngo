@@ -173,6 +173,45 @@ function escapeXml(value = '') {
     .replaceAll('"', '&quot;');
 }
 
+function joinSuggestedList(value) {
+  return Array.isArray(value)
+    ? value.map((item) => String(item).trim()).filter(Boolean).join(', ')
+    : '';
+}
+
+function useSuggestion(current, suggested) {
+  const currentText = String(current || '').trim();
+  return currentText || String(suggested || '').trim();
+}
+
+function useDescriptionSuggestion(payload, review) {
+  const currentText = String(payload.description || '').trim();
+  const suggested = String(review.description || '').trim();
+  const meta = { title: payload.title || review.title || '', body: payload.body || '' };
+  if (!currentText || isWeakDescription(currentText, meta)) {
+    return suggested || currentText;
+  }
+  return currentText;
+}
+
+// Hợp nhất bản nháp người dùng với gợi ý AI: chỉ điền vào ô trống,
+// trừ description yếu/trùng lặp thì thay hẳn bằng bản AI.
+export function mergePreparedInput(payload, review) {
+  return {
+    ...payload,
+    title: useSuggestion(payload.title, review.title),
+    description: useDescriptionSuggestion(payload, review),
+    tags: useSuggestion(payload.tags, joinSuggestedList(review.tags)),
+    readTime: useSuggestion(payload.readTime, review.readTime),
+    series: useSuggestion(payload.series, review.series),
+    seriesOrder: useSuggestion(payload.seriesOrder, review.seriesOrder),
+    seriesTitle: useSuggestion(payload.seriesTitle, review.seriesTitle),
+    relatedSlugs: useSuggestion(payload.relatedSlugs, joinSuggestedList(review.relatedSlugs)),
+    callToAction: useSuggestion(payload.callToAction, review.callToAction),
+    illustrationPrompt: useSuggestion(payload.illustrationPrompt, review.visualPrompt),
+  };
+}
+
 export async function runEditorialReview(env, draft, publishedSlugs = []) {
   const fallback = buildFallbackReview(draft, publishedSlugs);
   if (!env.AI) {

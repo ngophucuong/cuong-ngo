@@ -1,7 +1,7 @@
 import { error, html, json, readJson, withCors } from './lib/http.js';
 import { renderPreview } from './lib/markdown.js';
 import { renderStudioApp } from './lib/ui.js';
-import { generateIllustrationSvg, runEditorialReview } from './lib/ai.js';
+import { generateIllustrationSvg, mergePreparedInput, runEditorialReview } from './lib/ai.js';
 import { attachWorkflowInstance, approveDraft, createPublishJob, getDashboard, getDraft, getDraftIllustrationImageObject, getPublishedPostStats, listDrafts, recordViewEvent, saveDraft, saveDraftIllustrationImage, saveReview } from './lib/storage.js';
 import { listPublishedPosts, listPublishedSlugs, recallPublishedPostFromGitHub } from './lib/github.js';
 import { PublishWorkflow } from './workflows/publish-workflow.js';
@@ -218,21 +218,21 @@ async function handleReview(request, env, draftId) {
   return json({ ok: true, review });
 }
 
-async function handleIllustration(request, env) {
-  requireSession(request);
+async function handleIllustration(request, env, draftId) {
+  const session = requireSession(request);
   const payload = await readJson(request);
   if (!payload) {
     return error('Invalid JSON body', 400);
   }
 
   const illustrationSvg = await generateIllustrationSvg(env, payload);
+  const draft = await saveDraft(env, { ...payload, id: draftId, illustrationSvg }, session.email);
+
   return json({
     ok: true,
     illustrationSvg,
-    previewHtml: renderPreview({
-      ...payload,
-      illustrationSvg,
-    }),
+    draft,
+    previewHtml: draft.previewHtml || renderPreview({ ...payload, illustrationSvg }),
   });
 }
 
@@ -277,73 +277,6 @@ async function handleDraftIllustrationImage(request, env, draftId) {
   }
 
   return new Response(result.object.body, { headers });
-}
-
-
-function joinSuggestedList(value) {
-  return Array.isArray(value) ? value.map((item) => String(item).trim()).filter(Boolean).join(', ') : '';
-}
-
-function useSuggestion(current, suggested) {
-  const currentText = String(current || '').trim();
-  if (currentText) {
-    return currentText;
-  }
-  return String(suggested || '').trim();
-}
-
-function normalizeComparableText(value = '') {
-  return String(value || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[“”"'`.,!?…:;()\[\]{}_-]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function firstMeaningfulBodyLine(body = '') {
-  return String(body || '')
-    .replace(/^---\n[\s\S]*?\n---\n*/, '')
-    .split('\n')
-    .map((line) => line.replace(/^#+\s+/, '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim())
-    .find((line) => line.length >= 20) || '';
-}
-
-function isWeakPreparedDescription(description, payload, review) {
-  const normalized = normalizeComparableText(description);
-  if (!normalized || normalized.length < 35) {
-    return true;
-  }
-
-  const title = normalizeComparableText(payload.title || review.title || '');
-  const firstLine = normalizeComparableText(firstMeaningfulBodyLine(payload.body || ''));
-  return normalized === title || normalized === firstLine || (title && normalized.includes(title));
-}
-
-function useDescriptionSuggestion(payload, review) {
-  const currentText = String(payload.description || '').trim();
-  const suggested = String(review.description || '').trim();
-  if (!currentText || isWeakPreparedDescription(currentText, payload, review)) {
-    return suggested || currentText;
-  }
-  return currentText;
-}
-
-function mergePreparedInput(payload, review) {
-  return {
-    ...payload,
-    title: useSuggestion(payload.title, review.title),
-    description: useDescriptionSuggestion(payload, review),
-    tags: useSuggestion(payload.tags, joinSuggestedList(review.tags)),
-    readTime: useSuggestion(payload.readTime, review.readTime),
-    series: useSuggestion(payload.series, review.series),
-    seriesOrder: useSuggestion(payload.seriesOrder, review.seriesOrder),
-    seriesTitle: useSuggestion(payload.seriesTitle, review.seriesTitle),
-    relatedSlugs: useSuggestion(payload.relatedSlugs, joinSuggestedList(review.relatedSlugs)),
-    callToAction: useSuggestion(payload.callToAction, review.callToAction),
-    illustrationPrompt: useSuggestion(payload.illustrationPrompt, review.visualPrompt),
-  };
 }
 
 async function handlePrepare(request, env, draftId) {
@@ -497,7 +430,7 @@ export default {
       }
 
       if (draftRoute?.id && draftRoute.action === 'illustration' && request.method === 'POST') {
-        return await handleIllustration(request, env);
+        return await handleIllustration(request, env, draftRoute.id);
       }
 
       if (draftRoute?.id && draftRoute.action === 'illustration-image' && request.method === 'POST') {
