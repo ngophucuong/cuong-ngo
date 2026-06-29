@@ -4,7 +4,18 @@ import Base from '../layouts/Base.astro';
 <Base title="Giới thiệu — cuong.ngo" description="Ngô Phú Cường — người mang AI đến gần, đời thường, dễ làm, ứng dụng được ngay; với nền tảng nhiều năm xây hệ thống thật cho doanh nghiệp thật.">
   <div class="container about-body">
     <section class="about-hero clearfix">
-      <img src="/images/chan-dung.png" alt="Chân dung Ngô Phú Cường" class="about-portrait float-right" />
+      <picture>
+        <source srcset="/images/chan-dung-640.webp" type="image/webp" />
+        <img
+          src="/images/chan-dung-640.jpg"
+          alt="Chân dung Ngô Phú Cường"
+          class="about-portrait float-right"
+          width="640"
+          height="480"
+          decoding="async"
+          fetchpriority="high"
+        />
+      </picture>
 
       <h1 class="about-name">Ngô Phú Cường</h1>
       <p class="article-standfirst">
