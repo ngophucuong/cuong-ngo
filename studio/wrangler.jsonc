@@ -1,0 +1,41 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "cuong-ngo-studio",
+  "main": "src/index.js",
+  "compatibility_date": "2026-06-29",
+  "observability": {
+    "enabled": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "cuong-ngo-studio",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "DRAFTS_BUCKET",
+      "bucket_name": "cuong-ngo-studio-drafts"
+    }
+  ],
+  "ai": {
+    "binding": "AI"
+  },
+  "workflows": [
+    {
+      "binding": "PUBLISH_WORKFLOW",
+      "name": "cuong-ngo-publish",
+      "class_name": "PublishWorkflow"
+    }
+  ],
+  "vars": {
+    "PUBLIC_SITE_BASE": "https://blog.cuong.ngo",
+    "PUBLIC_TRACKING_BASE": "https://signals.cuong.ngo",
+    "GITHUB_REPOSITORY": "ngophucuong/cuong-ngo",
+    "GITHUB_BRANCH": "main",
+    "GITHUB_CONTENT_DIR": "src/content/blog",
+    "AI_REVIEW_MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+  }
+}

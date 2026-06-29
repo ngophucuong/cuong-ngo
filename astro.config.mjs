@@ -2,5 +2,5 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  site: 'https://cuong.ngo',
+  site: 'https://blog.cuong.ngo',
 });
