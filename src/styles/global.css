@@ -310,6 +310,22 @@ figcaption {
 .about-body h1 {
   margin-bottom: var(--space-m);
 }
+.about-hero {
+  min-height: 18rem;
+}
+.about-portrait {
+  max-width: 280px;
+  width: 38%;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+}
+.about-seed-list {
+  margin: 0 0 var(--space-m) 1.15rem;
+  padding: 0;
+}
+.about-seed-list li {
+  margin-bottom: 0.75rem;
+}
 
 /* ─── Article: standfirst ─── */
 .article-standfirst {
@@ -329,6 +345,18 @@ figcaption {
 .article-body p { margin-bottom: 1.6em; }
 .article-body h2 { margin-top: 3em; margin-bottom: 0.5em; }
 .article-body h3 { margin-top: 2em; margin-bottom: 0.4em; }
+.article-body img,
+.article-body svg,
+.article-body picture,
+.article-body figure {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: var(--space-m) auto;
+}
+.article-body figure {
+  width: 100%;
+}
 
 /* ─── Tags ─── */
 .tag-list {
@@ -483,6 +511,17 @@ figcaption {
   .float-right, .float-left {
     float: none;
     margin: var(--space-m) auto;
+    max-width: 100%;
+  }
+  .about-portrait {
+    width: 100%;
+    max-width: 320px;
+  }
+  .article-body img,
+  .article-body svg,
+  .article-body picture,
+  .article-body figure {
+    width: 100%;
     max-width: 100%;
   }
 }
