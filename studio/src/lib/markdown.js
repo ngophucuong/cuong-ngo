@@ -1,7 +1,7 @@
 import { extractTitleFromMarkdown, sanitizeSlug } from './slug.js';
 
 function escapeHtml(value = '') {
-  return value
+  return String(value ?? '')
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
@@ -37,6 +37,7 @@ export function stripMarkdown(markdown = '') {
     .replace(/`[^`]+`/g, ' ')
     .replace(/!\[[^\]]*\]\([^)]+\)/g, ' ')
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/<[^>]+>/g, ' ')
     .replace(/^>\s?/gm, '')
     .replace(/^#+\s+/gm, '')
     .replace(/[*_~>-]/g, ' ')
@@ -180,11 +181,24 @@ export function buildFrontmatter(meta) {
   return lines.join('\n');
 }
 
+function rawHtmlCloseTag(trimmed = '') {
+  const match = trimmed.match(/^<([a-z][a-z0-9-]*)\b/i);
+  if (!match) {
+    return '';
+  }
+
+  const tag = match[1].toLowerCase();
+  const blockTags = new Set(['blockquote', 'div', 'figure', 'table', 'pre', 'section', 'aside', 'details']);
+  return blockTags.has(tag) ? `</${tag}>` : '';
+}
+
 function renderBlocks(markdown = '') {
   const blocks = [];
   const lines = markdown.split('\n');
   let paragraph = [];
   let list = [];
+  let rawHtml = [];
+  let rawHtmlEnd = '';
 
   const flushParagraph = () => {
     if (!paragraph.length) {
@@ -202,12 +216,41 @@ function renderBlocks(markdown = '') {
     list = [];
   };
 
+  const flushRawHtml = () => {
+    if (!rawHtml.length) {
+      return;
+    }
+    blocks.push(rawHtml.join('\n'));
+    rawHtml = [];
+    rawHtmlEnd = '';
+  };
+
   for (const line of lines) {
     const trimmed = line.trim();
+
+    if (rawHtml.length) {
+      rawHtml.push(line);
+      if (!rawHtmlEnd || trimmed.toLowerCase().includes(rawHtmlEnd)) {
+        flushRawHtml();
+      }
+      continue;
+    }
 
     if (!trimmed) {
       flushParagraph();
       flushList();
+      continue;
+    }
+
+    const rawEnd = rawHtmlCloseTag(trimmed);
+    if (rawEnd || /^<\/?[a-z][\s\S]*>$/i.test(trimmed)) {
+      flushParagraph();
+      flushList();
+      rawHtml.push(line);
+      rawHtmlEnd = rawEnd;
+      if (!rawHtmlEnd || trimmed.toLowerCase().includes(rawHtmlEnd)) {
+        flushRawHtml();
+      }
       continue;
     }
 
@@ -246,6 +289,7 @@ function renderBlocks(markdown = '') {
 
   flushParagraph();
   flushList();
+  flushRawHtml();
 
   return blocks.join('\n');
 }
@@ -258,14 +302,25 @@ export function renderPreview(input = {}) {
     : meta.illustrationSvg
     ? `<figure class="article-illustration">${meta.illustrationSvg}</figure>`
     : '';
+  const tags = meta.tags?.length
+    ? `<ul class="tag-list">${meta.tags.map((tag) => `<li>${escapeHtml(tag)}</li>`).join('')}</ul>`
+    : '';
+  const readTime = meta.readTime ? ` · ${escapeHtml(meta.readTime)}` : '';
 
   return [
-    '<article class="preview-article">',
-    `<header class="preview-header"><h1>${escapeHtml(meta.title)}</h1><p>${escapeHtml(meta.description)}</p></header>`,
+    '<article class="blog-preview-article">',
+    '<header class="article-header">',
+    `<h1>${escapeHtml(meta.title)}</h1>`,
+    meta.description ? `<p class="article-standfirst">${escapeHtml(meta.description)}</p>` : '',
+    `<p class="article-meta">${escapeHtml(meta.date)}${readTime}</p>`,
+    tags,
+    '</header>',
+    '<div class="article-body">',
     illustration,
-    `<section class="preview-body">${renderBlocks(meta.body)}</section>`,
+    renderBlocks(meta.body),
+    '</div>',
     '</article>',
-  ].join('');
+  ].filter(Boolean).join('\n');
 }
 
 export function buildPublishArtifact(input = {}) {

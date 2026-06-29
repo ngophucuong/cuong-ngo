@@ -261,13 +261,9 @@ const STYLES = `
   .publish-status { display: flex; align-items: center; gap: 0.5rem; padding: 0.55rem 0.7rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--panel-soft); }
 
   .preview-panel { position: sticky; top: 78px; }
-  .preview-shell { border: 1px solid var(--line); border-radius: var(--radius-sm); background: #fff; padding: 1rem; min-height: 360px; max-height: calc(100vh - 230px); overflow: auto; }
-  .preview-shell .preview-header h1 { margin: 0 0 0.5rem; font-size: 1.4rem; line-height: 1.25; }
-  .preview-shell .preview-header p { margin: 0 0 1rem; color: var(--muted); font-style: italic; }
-  .preview-shell .preview-body p, .preview-shell .preview-body ul, .preview-shell .preview-body blockquote { margin: 0 0 1rem; line-height: 1.7; }
-  .preview-shell .preview-body h2 { margin: 1.5rem 0 0.5rem; font-size: 1.12rem; }
-  .preview-shell svg, .preview-shell img, .preview-shell figure { display: block; width: 100%; max-width: 100%; height: auto; margin: 0 0 1rem; }
-  .empty-state { color: var(--muted); margin: 0; }
+  .preview-shell { border: 1px solid var(--line); border-radius: var(--radius-sm); background: #fff; min-height: 360px; max-height: calc(100vh - 230px); overflow: hidden; }
+  .preview-frame { display: block; width: 100%; height: min(760px, calc(100vh - 232px)); min-height: 360px; border: 0; background: #f4efe6; }
+  .empty-state { color: var(--muted); margin: 1rem; }
 
   .ai-box { display: grid; gap: 0.7rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--panel-soft); padding: 0.75rem; max-height: 320px; overflow: auto; }
   .ai-flags { display: grid; gap: 0.3rem; }
@@ -694,8 +690,30 @@ const SCRIPT = `
     els.review.innerHTML = parts.join('');
   }
 
+  function previewDocument(previewHtml) {
+    return '<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+      '<style>' +
+      ':root{--color-bg:#f4efe6;--color-ink:#1a1714;--color-ink-2:#5a524a;--color-red:#9a3b1f;--color-border:#ddd6cb;--font-display:Georgia,serif;--font-body:Georgia,serif;--font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--space-xs:.5rem;--space-s:1rem;--space-m:1.75rem;--space-l:3rem}' +
+      '*{box-sizing:border-box}body{margin:0;background:var(--color-bg);color:var(--color-ink);font-family:var(--font-body);font-size:18px;line-height:1.75;-webkit-font-smoothing:antialiased;padding:1.4rem}' +
+      'article{max-width:680px;margin:0 auto}h1,h2,h3{font-family:var(--font-display);font-weight:400;line-height:1.2;color:var(--color-ink)}h1{font-size:clamp(1.8rem,4vw,2.6rem);margin:0 0 1rem}h2{font-size:1.5rem;margin:3rem 0 1rem}h3{font-size:1.2rem;margin:1.75rem 0 .5rem}p{margin:0 0 1.75rem}' +
+      '.article-header{margin-bottom:3rem}.article-standfirst{font-style:italic;font-size:1.2rem;color:var(--color-ink-2)}.article-meta{font-family:var(--font-mono);font-size:.78rem;color:var(--color-ink-2);letter-spacing:.04em}.tag-list{display:flex;gap:.45rem;flex-wrap:wrap;list-style:none;padding:0;margin:0 0 1.75rem}.tag-list li{font-family:var(--font-mono);font-size:.68rem;text-transform:uppercase;border:1px solid var(--color-border);border-radius:4px;padding:.2rem .45rem;color:var(--color-ink-2)}' +
+      'blockquote{border-left:2px solid var(--color-red);padding-left:1.5em;margin:2.5em 0;color:var(--color-ink-2);font-style:italic;font-size:1.2em;line-height:1.6}blockquote p{margin:0 0 1rem}a{color:var(--color-red);text-underline-offset:3px}img,svg,figure{display:block;max-width:100%;height:auto;margin:0 0 1.75rem;border-radius:4px}hr{border:0;border-top:1px solid var(--color-border);margin:3rem 0}code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,0,0,.05);padding:.15em .4em;border-radius:3px}ul{margin:0 0 1.75rem 1.2rem;padding:0}' +
+      '@media(max-width:720px){body{font-size:17px;padding:1rem}h1{font-size:clamp(1.5rem,6vw,2rem)}.article-standfirst{font-size:1.1rem}}' +
+      '</style></head><body>' + previewHtml + '</body></html>';
+  }
+
   function renderPreview(previewHtml) {
-    els.preview.innerHTML = previewHtml || '<p class="empty-state">Chọn hoặc tạo bài để xem trước.</p>';
+    if (!previewHtml) {
+      els.preview.innerHTML = '<p class="empty-state">Chọn hoặc tạo bài để xem trước.</p>';
+      return;
+    }
+
+    const frame = document.createElement('iframe');
+    frame.className = 'preview-frame';
+    frame.setAttribute('sandbox', '');
+    frame.setAttribute('title', 'Xem trước bài viết theo giao diện blog');
+    frame.srcdoc = previewDocument(previewHtml);
+    els.preview.replaceChildren(frame);
   }
 
   function renderSummary() {
