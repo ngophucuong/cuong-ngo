@@ -152,7 +152,7 @@ function fallbackSvg(seedText = '', title = '') {
   const lineX = 720 + (hash % 240);
 
   return [
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-label="${title || 'Minh hoạ bài viết'}">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-label="${escapeXml(title || 'Minh hoạ bài viết')}">`,
     `<rect width="1200" height="675" fill="${colors[0]}"/>`,
     `<circle cx="${accentX}" cy="${accentY}" r="132" fill="${colors[1]}" opacity="0.12"/>`,
     `<circle cx="1020" cy="540" r="188" fill="${colors[1]}" opacity="0.08"/>`,
