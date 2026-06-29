@@ -2,7 +2,7 @@ import { error, html, json, readJson, withCors } from './lib/http.js';
 import { renderPreview } from './lib/markdown.js';
 import { renderStudioApp } from './lib/ui.js';
 import { generateIllustrationSvg, runEditorialReview } from './lib/ai.js';
-import { attachWorkflowInstance, approveDraft, createPublishJob, getDashboard, getDraft, getDraftIllustrationImageObject, listDrafts, recordViewEvent, saveDraft, saveDraftIllustrationImage, saveReview } from './lib/storage.js';
+import { attachWorkflowInstance, approveDraft, createPublishJob, getDashboard, getDraft, getDraftIllustrationImageObject, getPublishedPostStats, listDrafts, recordViewEvent, saveDraft, saveDraftIllustrationImage, saveReview } from './lib/storage.js';
 import { listPublishedPosts, listPublishedSlugs, recallPublishedPostFromGitHub } from './lib/github.js';
 import { PublishWorkflow } from './workflows/publish-workflow.js';
 
@@ -133,8 +133,23 @@ async function handlePublishedPosts(request, env) {
     return error('Method not allowed', 405);
   }
 
-  const posts = await listPublishedPosts(env);
-  return json({ ok: true, posts });
+  const [posts, statsBySlug] = await Promise.all([
+    listPublishedPosts(env),
+    getPublishedPostStats(env),
+  ]);
+  return json({
+    ok: true,
+    posts: posts.map((post) => ({
+      ...post,
+      publicUrl: `${env.PUBLIC_SITE_BASE}/bai/${post.slug}/`,
+      stats: statsBySlug[post.slug] || {
+        totalViews: 0,
+        totalReaders: 0,
+        views30d: 0,
+        readers30d: 0,
+      },
+    })),
+  });
 }
 
 async function handleRecallPublishedPost(request, env, slug) {

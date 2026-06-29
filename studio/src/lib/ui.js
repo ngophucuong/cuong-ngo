@@ -185,6 +185,7 @@ export function renderStudioApp() {
     .stat-card span,
     .field-hint,
     .draft-item-meta,
+    .published-item-meta,
     .top-posts small,
     .schedule-list small {
       color: var(--muted);
@@ -200,7 +201,7 @@ export function renderStudioApp() {
       gap: 0.45rem;
     }
 
-    .draft-list button, .published-list button {
+    .draft-list button {
       width: 100%;
       text-align: left;
       border: 1px solid transparent;
@@ -229,19 +230,74 @@ export function renderStudioApp() {
     }
 
 
-    .published-list li {
+    .published-card {
       display: grid;
-      gap: 0.55rem;
+      gap: 0.65rem;
     }
 
-    .published-list button {
-      width: max-content;
+    .published-card-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+
+    .published-item-title {
+      margin-bottom: 0.18rem;
+    }
+
+    .published-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.35rem;
+    }
+
+    .published-stat {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
+      padding: 0.45rem 0.55rem;
+    }
+
+    .published-stat strong {
+      display: block;
+      color: var(--ink);
+      font-size: 0.92rem;
+      line-height: 1.1;
+    }
+
+    .published-stat span {
+      color: var(--muted);
+      font-size: 0.68rem;
+    }
+
+    .published-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.55rem;
+      align-items: center;
+    }
+
+    .published-actions a,
+    .published-actions button {
       min-height: 32px;
+      border-radius: 6px;
       padding: 0.38rem 0.6rem;
+      font-size: 0.76rem;
+      text-decoration: none;
+    }
+
+    .published-actions a {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--accent);
+    }
+
+    .published-actions button {
+      width: max-content;
       background: #fff7ed;
       border-color: #fed7aa;
       color: var(--warning);
-      font-size: 0.78rem;
     }
 
     .editor-head {
@@ -557,7 +613,7 @@ export function renderStudioApp() {
           <div class="panel-inner stack">
             <div>
               <h2>Bài đã đăng</h2>
-              <p class="field-hint">Thu hồi sẽ commit xoá file markdown trên GitHub.</p>
+              <p class="field-hint">Theo dõi lượt xem từ beacon. Thu hồi sẽ commit xoá file markdown trên GitHub.</p>
             </div>
             <ul class="published-list" id="published-list"></ul>
           </div>
@@ -974,13 +1030,24 @@ export function renderStudioApp() {
       if (!els.publishedList) return;
       els.publishedList.innerHTML = state.publishedPosts.length
         ? state.publishedPosts.map(function (post) {
+            const stats = post.stats || {};
             const title = escapeHtml(post.title || post.slug);
+            const slug = escapeHtml(post.slug);
             const meta = escapeHtml((post.date || 'chưa rõ ngày') + ' · ' + post.slug);
-            return '<li><div><span class="published-item-title">' + title + '</span>' +
-              '<span class="draft-item-meta">' + meta + '</span></div>' +
-              '<button type="button" data-recall-slug="' + escapeHtml(post.slug) + '">Thu hồi</button></li>';
+            const url = post.publicUrl || ('/bai/' + encodeURIComponent(post.slug) + '/');
+            return '<li class="published-card"><div class="published-card-head"><div>' +
+              '<span class="published-item-title">' + title + '</span>' +
+              '<span class="published-item-meta">' + meta + '</span></div></div>' +
+              '<div class="published-stats">' +
+                '<div class="published-stat"><strong>' + Number(stats.views30d || 0) + '</strong><span>lượt 30 ngày</span></div>' +
+                '<div class="published-stat"><strong>' + Number(stats.totalViews || 0) + '</strong><span>lượt tổng</span></div>' +
+                '<div class="published-stat"><strong>' + Number(stats.readers30d || 0) + '</strong><span>độc giả 30 ngày</span></div>' +
+                '<div class="published-stat"><strong>' + Number(stats.totalReaders || 0) + '</strong><span>độc giả tổng</span></div>' +
+              '</div>' +
+              '<div class="published-actions"><a href="' + escapeHtml(url) + '" target="_blank" rel="noreferrer">Xem bài</a>' +
+              '<button type="button" data-recall-slug="' + slug + '">Thu hồi</button></div></li>';
           }).join('')
-        : '<li><small>Chưa tải được danh sách bài đã đăng.</small></li>';
+        : '<li><small>Chưa có bài đã đăng.</small></li>';
     }
 
     function applyReview(review) {

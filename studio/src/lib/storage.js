@@ -617,6 +617,32 @@ export async function recordViewEvent(env, { slug, path, title, visitorHash, use
   ).run();
 }
 
+export async function getPublishedPostStats(env) {
+  const since = new Date(Date.now() - (30 * 24 * 60 * 60 * 1000)).toISOString();
+  const result = await env.DB.prepare(`
+    SELECT
+      slug,
+      COUNT(*) AS total_views,
+      COUNT(DISTINCT visitor_hash) AS total_readers,
+      SUM(CASE WHEN created_at >= ? THEN 1 ELSE 0 END) AS views_30d,
+      COUNT(DISTINCT CASE WHEN created_at >= ? THEN visitor_hash ELSE NULL END) AS readers_30d
+    FROM view_events
+    GROUP BY slug
+  `).bind(since, since).all();
+
+  const stats = {};
+  for (const row of result.results || []) {
+    stats[row.slug] = {
+      totalViews: Number(row.total_views || 0),
+      totalReaders: Number(row.total_readers || 0),
+      views30d: Number(row.views_30d || 0),
+      readers30d: Number(row.readers_30d || 0),
+    };
+  }
+
+  return stats;
+}
+
 export async function getDashboard(env) {
   const since = new Date(Date.now() - (30 * 24 * 60 * 60 * 1000)).toISOString();
   const [statusRows, topPostsRows, draftsRows, scheduledRows] = await env.DB.batch([
