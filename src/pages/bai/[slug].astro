@@ -60,15 +60,8 @@ function formatDate(date: Date) {
       </div>
     </article>
 
-    {/* Thứ tự cuối bài theo spec:
-        1. Câu hỏi mở — nằm trong nội dung bài (tác giả viết)
-        2. ConnectBlock (nếu có callToAction)
-        3. SeriesNav (nếu thuộc tuyến)
-        4. RelatedPosts (nếu có relatedSlugs)
-        5. Hyvor Talk (comments) */}
-
     {post.data.callToAction && (
-      <ConnectBlock callToAction={post.data.callToAction} />
+      <ConnectBlock callToAction={post.data.callToAction} calendarLink="mailto:ngophucuong@gmail.com" />
     )}
 
     {seriesPosts.length > 1 && (
@@ -82,20 +75,6 @@ function formatDate(date: Date) {
     {relatedPosts.length > 0 && (
       <RelatedPosts posts={relatedPosts} />
     )}
-
-    {/* Hyvor Talk comments */}
-    <div style="margin-top: 3rem;">
-      <div id="hyvor-talk-view"></div>
-      <script type="text/javascript">
-        var HYVOR_TALK_WEBSITE = "YOUR_WEBSITE_ID";
-        var HYVOR_TALK_CONFIG = { url: false, id: false };
-      </script>
-      <script
-        async
-        type="text/javascript"
-        src="//talk.hyvor.com/web-api/embed"
-      ></script>
-    </div>
 
     <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--color-border);">
       <a href="/" style="font-family: var(--font-mono); font-size: 0.8rem; text-decoration: none; color: var(--color-ink-2);">← Về trang chủ</a>
