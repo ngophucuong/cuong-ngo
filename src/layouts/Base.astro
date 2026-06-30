@@ -74,19 +74,24 @@ const fontStylesheet = 'https://fonts.googleapis.com/css2?family=Fraunces:ital,o
           title: document.title,
         });
 
+        const sendWithFetch = () => fetch(trackingBase, {
+          method: 'POST',
+          headers: { 'content-type': 'text/plain;charset=UTF-8' },
+          body: payload,
+          keepalive: true,
+          mode: 'cors',
+        }).catch(() => {});
+
         try {
-          if (navigator.sendBeacon) {
-            navigator.sendBeacon(trackingBase, new Blob([payload], { type: 'application/json' }));
-          } else {
-            fetch(trackingBase, {
-              method: 'POST',
-              headers: { 'content-type': 'application/json' },
-              body: payload,
-              keepalive: true,
-              mode: 'cors',
-            });
+          const sent = navigator.sendBeacon
+            ? navigator.sendBeacon(trackingBase, new Blob([payload], { type: 'text/plain;charset=UTF-8' }))
+            : false;
+          if (!sent) {
+            sendWithFetch();
           }
-        } catch {}
+        } catch {
+          sendWithFetch();
+        }
       }
     </script>
   )}
