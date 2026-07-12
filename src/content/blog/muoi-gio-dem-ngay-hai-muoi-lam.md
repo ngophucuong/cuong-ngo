@@ -11,7 +11,7 @@ series: "Hữu Phát"
 seriesOrder: 1
 relatedSlugs:
   - "ba-ty-va-mot-bai-hoc"
-  - "cai-dem-toi-suyt-nem-dien-thoai-vao-tuong-va-buoi-sang-dau-tien-khong-ai-goi-toi-nua"
+  - "cai-dem-suyt-nem-dien-thoai"
 callToAction: "Bạn đang phải chốt một con số mà bạn biết là không chắc — vì hạn nộp đã đến."
 ---
 Cả phòng kế toán vẫn đủ người. Không ai nói chuyện.
