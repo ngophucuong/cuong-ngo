@@ -12,7 +12,7 @@ seriesOrder: 1
 relatedSlugs:
   - "ba-ty-va-mot-bai-hoc"
   - "cai-dem-toi-suyt-nem-dien-thoai-vao-tuong-va-buoi-sang-dau-tien-khong-ai-goi-toi-nua"
-callToAction: "Trong tổ chức của bạn, ai đang giữ cái file chính xác nhất — và họ đang giữ nó ở đâu?"
+callToAction: "Bạn đang phải chốt một con số mà bạn biết là không chắc — vì hạn nộp đã đến."
 ---
 Cả phòng kế toán vẫn đủ người. Không ai nói chuyện.
 Kỳ chốt bảng kê với khách chạy từ hai mươi sáu tháng trước tới hai mươi lăm tháng này. Hợp đồng viết thế. Chốt xong thì xuất hóa đơn, và chi phí phải rơi đúng vào kỳ này — nên tất cả phải xong trước lúc ngày hai mươi lăm hết.
