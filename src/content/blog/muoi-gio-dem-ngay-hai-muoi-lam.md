@@ -7,8 +7,9 @@ tags:
   - "Doanh nghiệp"
   - "Kế toán"
 readTime: "~4 phút đọc"
-series: "Hữu Phát"
+series: "huu-phat"
 seriesOrder: 1
+seriesTitle: "Hữu Phát"
 relatedSlugs:
   - "ba-ty-va-mot-bai-hoc"
   - "cai-dem-suyt-nem-dien-thoai"

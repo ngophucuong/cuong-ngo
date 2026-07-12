@@ -4,6 +4,9 @@ date: 2026-06-22
 tags: ["Vận hành", "Doanh nghiệp"]
 readTime: "~6 phút đọc"
 description: "Mọi doanh nghiệp đều có hai bộ quy trình: bộ được viết ra và bộ thực sự đang chạy. Phần mềm thường được xây trên bộ đầu tiên — và phá vỡ bộ thứ hai."
+series: "phan-mem-thich-ung"
+seriesOrder: 4
+seriesTitle: "Phần mềm thích ứng"
 relatedSlugs:
   - "phan-mem-bat-dau-hoc-con-nguoi"
   - "diem-bat-dau-khong-phai-phan-mem"

@@ -9,6 +9,7 @@ seriesOrder: 2
 seriesTitle: "Phần mềm thích ứng"
 relatedSlugs:
   - "quy-trinh-viet-va-quy-trinh-that"
+  - "ba-ty-va-mot-bai-hoc"
 callToAction: "lo ngại về độ tin cậy khi triển khai AI vào vận hành thực tế"
 ---
 

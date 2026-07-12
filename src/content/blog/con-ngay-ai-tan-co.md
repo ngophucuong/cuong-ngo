@@ -9,9 +9,10 @@ tags:
 readTime: "~4 phút đọc"
 relatedSlugs:
   - "diem-bat-dau-khong-phai-phan-mem"
+  - "cai-dem-suyt-nem-dien-thoai"
 ---
 <figure class="article-illustration">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-label="&quot;Con ngấy AI tận cổ!""><rect width="1200" height="675" fill="#ede7da"/><circle cx="535" cy="315" r="132" fill="#3d5c4a" opacity="0.12"/><circle cx="1020" cy="540" r="188" fill="#3d5c4a" opacity="0.08"/><path d="M120 520C260 420 380 400 520 452C650 500 820 508 1080 360" stroke="#3d5c4a" stroke-width="12" fill="none" stroke-linecap="round" opacity="0.78"/><path d="M130 435H955" stroke="#5a524a" stroke-width="2" opacity="0.18"/><rect x="96" y="88" width="680" height="100" rx="18" fill="white" fill-opacity="0.42"/><text x="126" y="144" fill="#5a524a" font-family="Georgia, serif" font-size="34">&quot;Bao giờ thì xu hướng này qua đi bố nhỉ?&quot;</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-label="&quot;Con ngấy AI tận cổ!"><rect width="1200" height="675" fill="#ede7da"/><circle cx="535" cy="315" r="132" fill="#3d5c4a" opacity="0.12"/><circle cx="1020" cy="540" r="188" fill="#3d5c4a" opacity="0.08"/><path d="M120 520C260 420 380 400 520 452C650 500 820 508 1080 360" stroke="#3d5c4a" stroke-width="12" fill="none" stroke-linecap="round" opacity="0.78"/><path d="M130 435H955" stroke="#5a524a" stroke-width="2" opacity="0.18"/><rect x="96" y="88" width="680" height="100" rx="18" fill="white" fill-opacity="0.42"/><text x="126" y="144" fill="#5a524a" font-family="Georgia, serif" font-size="34">&quot;Bao giờ thì xu hướng này qua đi bố nhỉ?&quot;</text></svg>
 </figure>
 
 Một hôm con gái tôi đi học về, buông một câu: "Con ngấy AI tận cổ!"

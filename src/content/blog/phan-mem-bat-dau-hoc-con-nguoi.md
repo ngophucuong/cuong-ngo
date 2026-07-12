@@ -9,6 +9,7 @@ seriesOrder: 1
 seriesTitle: "Phần mềm thích ứng"
 relatedSlugs:
   - "quy-trinh-viet-va-quy-trinh-that"
+  - "em-ay-ten-la-tobot"
 callToAction: "vật lộn với việc phần mềm không theo kịp cách doanh nghiệp bạn thực sự vận hành"
 ---
 
