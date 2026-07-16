@@ -209,6 +209,9 @@ const STYLES = `
   }
   .top-list strong, .schedule-list strong { font-size: 0.84rem; overflow-wrap: anywhere; }
   .top-list small, .schedule-list small { color: var(--muted); font-size: 0.72rem; }
+  .schedule-list li.job-failed { background: var(--amber-soft); border-color: var(--amber); }
+  .schedule-list li.job-failed strong { color: var(--amber); }
+  .schedule-list .job-error { color: var(--amber); font-size: 0.7rem; overflow-wrap: anywhere; }
 
   .editor-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.9rem; }
   .editor-head h2 { text-transform: none; letter-spacing: 0; color: var(--ink); font-size: 1.1rem; font-weight: 650; margin-bottom: 0.15rem; }
@@ -712,7 +715,12 @@ const SCRIPT = `
 
     const scheduled = (state.dashboard && state.dashboard.scheduled) || [];
     els.scheduled.innerHTML = scheduled.length
-      ? scheduled.map(function (job) { return '<li><strong>' + escapeHtml(job.slug) + '</strong><small>' + escapeHtml(formatDateTime(job.publishAt)) + '</small></li>'; }).join('')
+      ? scheduled.map(function (job) {
+          var failed = job.status === 'failed';
+          var icon = failed ? '⚠ ' : '';
+          var errorHtml = (failed && job.errorReason) ? '<span class="job-error">' + escapeHtml(job.errorReason.slice(0, 80)) + '</span>' : '';
+          return '<li class="' + (failed ? 'job-failed' : '') + '"><strong>' + icon + escapeHtml(job.slug) + '</strong><small>' + escapeHtml(formatDateTime(job.publishAt)) + '</small>' + errorHtml + '</li>';
+        }).join('')
       : '<li class="empty-row">Chưa có bài xếp lịch.</li>';
   }
 

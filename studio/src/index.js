@@ -2,7 +2,7 @@ import { error, html, json, readJson, withCors } from './lib/http.js';
 import { renderPreview } from './lib/markdown.js';
 import { renderStudioApp } from './lib/ui.js';
 import { generateIllustrationSvg, mergePreparedInput, runEditorialReview } from './lib/ai.js';
-import { attachWorkflowInstance, approveDraft, createPublishJob, getDashboard, getDraft, getDraftIllustrationImageObject, getPublishedPostStats, listDrafts, recordViewEvent, saveDraft, saveDraftIllustrationImage, saveReview } from './lib/storage.js';
+import { attachWorkflowInstance, approveDraft, createPublishJob, getDashboard, getDraft, getDraftIllustrationImageObject, getPublishedPostStats, listDrafts, markPublishFailure, recordViewEvent, saveDraft, saveDraftIllustrationImage, saveReview } from './lib/storage.js';
 import { listPublishedPosts, listPublishedSlugs, recallPublishedPostFromGitHub } from './lib/github.js';
 import { PublishWorkflow } from './workflows/publish-workflow.js';
 
@@ -348,15 +348,24 @@ async function handlePublish(request, env, draftId) {
   });
 
   const workflowInstanceId = `publish-${draftId}-${Date.now()}`;
-  const instance = await env.PUBLISH_WORKFLOW.create({
-    id: workflowInstanceId,
-    params: {
+  let instance;
+  try {
+    instance = await env.PUBLISH_WORKFLOW.create({
+      id: workflowInstanceId,
+      params: {
+        jobId: job.jobId,
+        draftId,
+        publishAt,
+        actorEmail: session.email,
+      },
+    });
+  } catch (workflowError) {
+    await markPublishFailure(env, {
       jobId: job.jobId,
-      draftId,
-      publishAt,
-      actorEmail: session.email,
-    },
-  });
+      errorMessage: workflowError instanceof Error ? workflowError.message : 'Không thể khởi động Workflow',
+    });
+    throw workflowError;
+  }
 
   await attachWorkflowInstance(env, job.jobId, instance.id || workflowInstanceId);
 

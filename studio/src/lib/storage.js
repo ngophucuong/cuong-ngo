@@ -680,11 +680,11 @@ export async function getDashboard(env) {
       LIMIT 20
     `),
     env.DB.prepare(`
-      SELECT target_slug, publish_at, status
+      SELECT target_slug, publish_at, status, error_message
       FROM publish_jobs
-      WHERE status = 'queued'
-      ORDER BY publish_at ASC
-      LIMIT 8
+      WHERE status IN ('queued', 'failed')
+      ORDER BY updated_at DESC
+      LIMIT 10
     `),
   ]);
 
@@ -712,6 +712,7 @@ export async function getDashboard(env) {
       slug: row.target_slug,
       publishAt: row.publish_at,
       status: row.status,
+      errorReason: row.error_message || null,
     })),
   };
 }
